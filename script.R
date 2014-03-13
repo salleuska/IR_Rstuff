@@ -1,8 +1,5 @@
 #setwd("~/Scrivania/esiti 1992")
-data.raw <- read.delim("heidel_details.txt", header=F)
-summary(data.raw)
-# Mantengo una copia dei dati grezzi (sai che fai casini)
-data <- data.raw
+data <- read.delim("heidel_details.txt", header=F)
 colnames(data) <- c("id", "type", "value", "term", "creation")
 
 str(data)
@@ -12,14 +9,12 @@ length(unique(data$id))
 # check
 levels(data$type)
 
-str(data)
 summary(data)
 
 # Percentuali tipo di espressioni
 summary(data$type)/length(data$type)
 
 # barplot orribile
-
 plot(data$type)
 
 # distribuzione espressioni(tipo) per documento
@@ -28,7 +23,7 @@ plot(data$type)
 
 # distribuzione tipi espressione per documento
 # funzione 
-typefor <- function(tipo, valore)
+typefor <- function(tipo, valore, plot = FALSE)
 {
   par(mfrow = c(2, 2))
   #e.g. per ogni documento voglio il numero di espressioni per tipo
@@ -41,18 +36,17 @@ typefor <- function(tipo, valore)
     cat("Distribuzione nei documenti", levels(data$type)[i], "\n")
     print(summary(d))
     cat("******************* \n")
-    
-    #hist(d$tip, breaks = 100, prob = T, main= paste("distribution", unique(data$type)[i]))
-    
+    if(plot == TRUE)
+    {
+      hist(d$tip, breaks = 100, prob = T, main= paste("distribution", unique(data$type)[i]))
+    }
   }
 }
 
-cat("Statistiche", levels(data$type)[1])
+typefor(tipo= data$value, data$type, plot = T)
 
-
-typefor(tipo= data$value, data$type)
 #---------------------------------------------------#
-# Prima a mano
+# A mano
 type.per.doc <- tapply(data$id, data$type, summary, maxsum = Inf)
 str(type.per.doc)
 # DATE per documento 
@@ -84,16 +78,8 @@ rownames(duration)[which(duration == 63)]
 data[data$id == rownames(duration)[which(duration != 0)], ]
 length(unique(rownames(duration)[which(duration != 0)]))
 
-
-
-#boxplot
-hist(duration$duration, prob = T, breaks = 100)
-
-type.per <- tapply(data$value, data$type, summary, maxsum = Inf)
-str(type.per)
-sort(type.per[[4]])
-
-# ID DA MAPPARE A INT
+#----------------------------#
+# NOTA: CHECK ID DA MAPPARE A INT
 # recode library(car)
 library(gdata)
 id.map <- mapLevels(data$id)
