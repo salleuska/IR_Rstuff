@@ -3,20 +3,30 @@ setwd("/media/DATA/Ubuntu/Rstuff")
 data <- read.delim("heidel_details.txt", header=F)
 colnames(data) <- c("id", "type", "value", "term", "creation")
 
+typeDate <- data
+
 str(data)
 
 # numero documenti 
 length(unique(data$id))
 # check
 levels(data$type)
+levels(data$value)
 
 summary(data)
 
 # Percentuali tipo di espressioni
 summary(data$type)/length(data$type)
 
+# Percentuali valori espressioni
+summary(data$value)/length(data$value)
+
+# Percentuali termini espressioni
+summary(filteredData$term)/length(filteredData$term)
+
 # barplot orribile
 plot(data$type)
+
 
 # distribuzione espressioni(tipo) per documento
 # distr termini(importanti) per tipo di espressioni
