@@ -31,7 +31,7 @@ high <- which(as.integer(levels(data$year)) > 2000)
 check.high <- levels(data$year)[high]
 check.high
 
-data[which(data$year == check.high[27]), ]
+data[which(data$year == check.high[1]), ]
 
 # Possibilità: eliminare quelli meno frequenti?
 
