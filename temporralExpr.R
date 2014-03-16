@@ -27,20 +27,21 @@ as.integer(levels(data$year))
 # misstyping o errori heideltime
 
 high <- which(as.integer(levels(data$year)) > 2000)
-check <- levels(data$year)[high]
-check
+check.high <- levels(data$year)[high]
+check.high
 
-data[which(data$year == check[27]), ]
+data[which(data$year == check.high[27]), ]
 
 # Possibilità: eliminare quelli meno frequenti?
 
-count <- numeric(length(check))
-for(i in 1:length(check))
+count <- numeric(length(check.high))
+for(i in 1:length(check.high))
 {
-  count[i] <-dim(data[which(data$year == check[i]), ])[1]
+  count[i] <-dim(data[which(data$year == check.high[i]), ])[1]
   count
 }
-check[which(count < 5)]
+cbind( check.high, count)
+check.high[which(count < 5)]
 
 # soglia da scegliere
 
@@ -63,6 +64,10 @@ for(i in 1:length(check))
 }
 str(count)
 
+# Supponendo che tra 1000 e 2000 siano tutti anni
+# per rinominare in (year, decade, etc)
+levels(data$year)[which((as.integer(levels(data$year)) > 1000) &(as.integer(levels(data$year)) < 2000))] <- "year"
+(data$year)
 #------------------------------------------------------------#
 # Funzione generale (bozza)
 # Estrazione espressione - frequenza - termini associati
