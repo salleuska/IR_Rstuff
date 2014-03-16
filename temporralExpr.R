@@ -7,7 +7,9 @@ colnames(data) <- c("id", "type", "value", "term", "creation")
 print(unique(data$value[data$type == "DATE"]))
 
 data[data$value == 1169, ]
+
 data[(as.integer(data$value)>2000), ]
+
 for(i in 1:50)
 {
   print(data[data$value ==levels(data$value)[i], ])
@@ -15,13 +17,80 @@ for(i in 1:50)
 
 # Nuova colonna per differenziare gli anni
 data$year <- data$value
+
+cbind(as.integer(levels(data$value)), levels(data$value))
 levels(data$year) <- as.integer(levels(data$value))
-str(data$year)
-head(data)
+as.integer(levels(data$year))
+
 # Pulizia 
-# quali sono century
-# quali non hanno senso, tipo gli ultimi livelli (2140, 2901.. )
+# valori che potrebbero non avere senso, alti e bassi
+# misstyping o errori heideltime
+
+high <- which(as.integer(levels(data$year)) > 2000)
+check <- levels(data$year)[high]
+check
+
+data[which(data$year == check[27]), ]
+
+# Possibilità: eliminare quelli meno frequenti?
+
+count <- numeric(length(check))
+for(i in 1:length(check))
+{
+  count[i] <-dim(data[which(data$year == check[i]), ])[1]
+  count
+}
+check[which(count < 5)]
+
+# soglia da scegliere
+
+# quali sono century (valori bassi)
+low <- which(as.integer(levels(data$year)) < 1010)
+check <- levels(data$year)[low]
+check
+data[which(data$year == check[25]), ]
+
+as.character(data$term[which(data$year == check[1])])
+
+# Per ogni espressione ho una lista contenente la frequenza e i termini associati 
+count <- list(list())
+for(i in 1:length(check))
+{
+  freq <- dim(data[which(data$year == check[i]), ])[1]
+  terms <- unique(as.character(data$term[which(data$year == check[i])]))
+  count[[check[i]]] <- list(terms = terms, freq = freq)
+  count
+}
+str(count)
+
+#------------------------------------------------------------#
+# Funzione generale (bozza)
+# Estrazione espressione - frequenza - termini associati
+# data.temp <- vettore espressioni temporali dai dati (come variabili fattoriali)
+
+data.temp <- data$year
+
+info <- function(data.temp)
+{
+  t.espr <- levels(data.temp)
+  out <- list(list())
+  for(i in 1:length(t.espr))
+  {
+    freq <- dim(data[which(data.temp == t.espr[i]), ])[1]
+    terms <- unique(as.character(data$term[which(data.temp == t.espr[i])]))
+    out[[t.espr[i]]] <- list(terms = terms, freq = freq)
+  }
+  out
+}
+
+# prova
+prova <- info(data$year)
+str(prova)
+check
+str(prova[check])
+
 ##
 print(unique(data$value[data$type == "DURATION"]))
 print(unique(data$value[data$type == "TIME"]))
 print(unique(data$value[data$type == "SET"]))
+
