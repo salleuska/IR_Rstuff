@@ -1,5 +1,5 @@
 #setwd("~/Scrivania/esiti 1992")
-setwd("/media/DATA/Ubuntu/Rstuff")
+setwd("/home/alan/Documents/GIT/Rstuff")
 data <- read.delim("heidel_details.txt", header=F)
 colnames(data) <- c("id", "type", "value", "term", "creation")
 
