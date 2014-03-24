@@ -1,5 +1,5 @@
 # setwd("~/Scrivania/TipsterData/esiti 1992 bis")
-setwd("/media/DATA/Ubuntu/Rstuff")
+setwd("/home/alan/Documents/GIT/Rstuff")
 
 # Lettura dati
 data <- read.delim("heidel_details.txt", header=F)

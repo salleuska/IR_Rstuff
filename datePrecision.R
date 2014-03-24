@@ -12,7 +12,7 @@ levels(data$prec)
 summary(data)
 
 # Percentuali tipo di espressioni
-summary(data$prec)/length(data$prec)
+stat <- summary(data$prec)/length(data$prec)
 
 
 # PREC per documento
