@@ -1,17 +1,18 @@
-#setwd("~/Scrivania/esiti 1992")
+#setwd("~/Scrivania/TipsterData/")
 setwd("/home/alan/Documents/GIT/Rstuff")
+#-------------------------------------------------------------------#
+#   Lettura e codifica variabili
+
 data <- read.delim("heidel_details.txt", header=F)
+# Tutti i dati
+# data <- read.delim("esiti tutti/heidel_details.txt", header=F)
 colnames(data) <- c("id", "type", "value", "term", "creation")
-
-typeDate <- data
-
 str(data)
-
+#-------------------------------------------------------------------#
 # numero documenti 
 length(unique(data$id))
 # check
 levels(data$type)
-levels(data$value)
 
 summary(data)
 
@@ -88,9 +89,3 @@ summary(duration)
 rownames(duration)[which(duration == 63)]
 data[data$id == rownames(duration)[which(duration != 0)], ]
 length(unique(rownames(duration)[which(duration != 0)]))
-
-#----------------------------#
-# NOTA: CHECK ID DA MAPPARE A INT
-# recode library(car)
-library(gdata)
-id.map <- mapLevels(data$id)

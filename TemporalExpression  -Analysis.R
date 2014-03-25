@@ -1,9 +1,9 @@
 # setwd("~/Scrivania/TipsterData/")
-setwd("/home/alan/Documents/GIT/Rstuff")
+# setwd("/home/alan/Documents/GIT/Rstuff")
 
 #-----------------------------------------------------------------------------#
 # Lettura dati
-data <- read.delim("esiti 1989/heidel_details.txt", header=F)
+data <- read.delim("esiti tutti/heidel_details.txt", header=F)
 colnames(data) <- c("id", "type", "value", "term", "creation")
 #------------------------------------------------------------------------------#
 print(unique(data$value[data$type == "DATE"]))
