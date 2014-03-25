@@ -1,5 +1,5 @@
 #setwd("~/Scrivania/esiti 1992")
-setwd("/home/alan/Documents/GIT/Rstuff")
+setwd("/media/DATA/Ubuntu/Rstuff")
 data <- read.delim("heidel_datePrecision.txt", header=F)
 colnames(data) <- c("id", "value", "prec")
 
@@ -12,7 +12,7 @@ levels(data$prec)
 summary(data)
 
 # Percentuali tipo di espressioni
-stat <- summary(data$prec)/length(data$prec)
+summary(data$prec)/length(data$prec)
 
 
 # PREC per documento

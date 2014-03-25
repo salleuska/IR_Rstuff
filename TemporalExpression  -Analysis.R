@@ -1,10 +1,11 @@
-# setwd("~/Scrivania/TipsterData/esiti 1992 bis")
+# setwd("~/Scrivania/TipsterData/")
 setwd("/home/alan/Documents/GIT/Rstuff")
 
+#-----------------------------------------------------------------------------#
 # Lettura dati
-data <- read.delim("heidel_details.txt", header=F)
+data <- read.delim("esiti 1989/heidel_details.txt", header=F)
 colnames(data) <- c("id", "type", "value", "term", "creation")
-
+#------------------------------------------------------------------------------#
 print(unique(data$value[data$type == "DATE"]))
 
 data[data$value == 1169, ]
@@ -31,7 +32,7 @@ high <- which(as.integer(levels(data$year)) > 2000)
 check.high <- levels(data$year)[high]
 check.high
 
-data[which(data$year == check.high[1]), ]
+data[which(data$year == check.high[27]), ]
 
 # Possibilità: eliminare quelli meno frequenti?
 
@@ -68,9 +69,9 @@ str(count)
 # Supponendo che tra 1000 e 2000 siano tutti anni
 # per rinominare in (year, decade, etc)
 levels(data$year)[which((as.integer(levels(data$year)) > 1000) &(as.integer(levels(data$year)) < 2000))] <- "year"
-(data$year)
+levels(data$year)
 #------------------------------------------------------------#
-# Funzione generale (bozza)
+# Funzione generale
 # Estrazione espressione - frequenza - termini associati
 # data.temp <- vettore espressioni temporali dai dati (come variabili fattoriali)
 
@@ -92,11 +93,18 @@ info <- function(data.temp)
 # prova
 prova <- info(data$year)
 str(prova)
+
 check
 str(prova[check])
-
+prova[check][ 191]
 ##
 print(unique(data$value[data$type == "DURATION"]))
-print(unique(data$value[data$type == "TIME"]))
 print(unique(data$value[data$type == "SET"]))
 
+#--------------------#
+# Gestione tipo TIME #
+#--------------------#
+print(sort(unique(data$value[data$type == "TIME"])))
+length(unique(data$value[data$type == "TIME"]))
+
+# farli diventare tutti time
