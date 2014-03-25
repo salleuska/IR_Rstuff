@@ -77,7 +77,7 @@ levels(data$year)
 
 data.temp <- data$year
 
-info <- function(data.temp)
+info <- function(data.temp, data)
 {
   t.espr <- levels(data.temp)
   out <- list(list())
