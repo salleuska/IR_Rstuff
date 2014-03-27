@@ -47,3 +47,54 @@ typefor <- function(tipo, valore, plot = FALSE)
     }
   }
 }
+
+
+startTimer <- function(gcFirst = TRUE, type=c("elapsed", "user.self", "sys.self"))
+{
+  type <- match.arg(type)
+  assign(".type", type, envir=baseenv())
+  if(gcFirst) gc(FALSE)
+  tic <- proc.time()[type]         
+  assign(".tic", tic, envir=baseenv())
+  invisible(tic)
+}
+
+stopTimer <- function()
+{
+  type <- get(".type", envir=baseenv())
+  toc <- proc.time()[type]
+  tic <- get(".tic", envir=baseenv())
+  #print(toc - tic)
+  
+  diff <- toc - tic
+  
+  secs <- floor(diff)
+  
+  min <- floor(secs / 60)
+  secs <- secs - (min * 60)
+  
+  
+  
+  
+  
+  milli <- floor((diff - secs) * 1000)
+  
+  tempo <- paste(milli, "milli")
+  
+  if (secs > 0)
+  {
+    tempo <- paste(secs, "s", tempo)
+  }
+  
+  if (min > 0)
+  {
+    tempo <- paste(min, "m", tempo)
+  }
+  
+  print(paste("Tempo trascorso: ", tempo))
+  
+  
+  
+  
+  invisible(toc)
+}

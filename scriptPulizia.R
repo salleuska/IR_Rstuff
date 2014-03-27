@@ -1,9 +1,10 @@
 # setwd("~/Scrivania/TipsterData")
-setwd("/home/alan/Documents/GIT/Rstuff")
+setwd("~/Documents/GIT/Rstuff")
 #-------------------------------------------------------------------#
-source("~/altracartella/IR_Rstuff/TipsterFunzioni.R") # per info()
+#source("~/altracartella/IR_Rstuff/TipsterFunzioni.R") # per info()
+source("~/Documents/GIT/Rstuff/TipsterFunzioni.R") # per info()
 # Lettura 
-data <- read.table("heidel_details&precision.txt", header=T)
+data <- read.table("clean/heidel_details&precision.txt", header=T)
 #-------------------------------------------------------------------#
 str(data)
 # Toglie dati con value nullo (2)
@@ -64,7 +65,8 @@ write.table(data, file = "heidel_year.pulito.txt")
 # pulizia workspace e rilettura
 rm(list = ls())
 data <- read.table("heidel_year.pulito.txt", header=T)
-source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+#source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+source("~/Documents/GIT/Rstuff/TipsterFunzioni.R") # per info()
 #------------------------------------#
 # Tipo DATE undefined 
 undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
@@ -102,7 +104,8 @@ write.table(data, file = "heidel_pulizia.tmp.txt")
 rm(list = ls())
 data <- read.table("heidel_pulizia.tmp.txt", header=T)
 # serve fare il source del file TipsterFunzioni.R per poter utilizzare la funzione info()
-source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+#source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+source("~/Documents/GIT/Rstuff/TipsterFunzioni.R") # per info()
 #------------------------------------#
 # Tipo DATE undefined 
 undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
@@ -142,8 +145,10 @@ lapply(split(mtcars, mtcars$cyl),
        function(x)write.table(x, file = paste(x$cyl[1], ".txt", sep = "")))
 
 # Scelta cartella
-setwd("/home/sally/Scrivania/TipsterData/prova")
-data <- read.table("/home/sally/Scrivania/TipsterData/heidel_pulizia.tmp.txt", header=T)
+#setwd("/home/sally/Scrivania/TipsterData/prova")
+#data <- read.table("/home/sally/Scrivania/TipsterData/heidel_pulizia.tmp.txt", header=T)
+setwd("~/Documents/GIT/Rstuff/prova")
+data <- read.table("~/Documents/GIT/Rstuff/heidel_pulizia.tmp.txt", header=T)
 # Subset solo tipo DATE senza i gran = undefined
 dat.sub <- data[which((data$type =="DATE")&(data$gran != "undefined")), ]
 dat.sub <- droplevels(dat.sub)
@@ -151,7 +156,7 @@ dat.sub <- droplevels(dat.sub)
 dat.sub <- dat.sub[,-4]
 str(dat.sub)
 
-prova <- dat.sub[1:100, ]
+prova <- dat.sub[1:1000, ]
 prova <- droplevels(prova)
 str(prova)
 write.files <- function(data)
@@ -161,7 +166,59 @@ write.files <- function(data)
   write.table(subset.to.write, file = file.name,
               row.names = FALSE, col.names = FALSE, quote = FALSE)
 }
-# scrittura
+# scrittura (circa 15 minuti parallizzando il mio pc)
+source("~/Documents/GIT/Rstuff/TipsterFunzioni.R") # per info()
+startTimer()
 lapply(split(prova, prova$id), function(x) write.files(x))
+stopTimer()
+
+
+prova <- dat.sub[1:1000, ]
+prova <- droplevels(prova)
+str(prova)
+write.files <- function(data)
+{
+  file.name = paste(data$id[1],"_",data$creation[1], ".txt", sep = "") 
+  subset.to.write <- data[, -c(1,4)]
+  write.table(subset.to.write, file = file.name,
+              row.names = FALSE, col.names = FALSE, quote = FALSE)
+}
+# scrittura (circa 15 minuti parallizzando il mio pc)
+source("~/Documents/GIT/Rstuff/TipsterFunzioni.R") # per info()
+startTimer()
+lapply(split(prova, prova$id), function(x) write.files(x))
+stopTimer()
+
+
+
+source("~/Documents/GIT/Rstuff/TipsterFunzioni.R") # per info()
+startTimer()
+prova <- dat.sub#[1:10, ]
+prova <- droplevels(prova)
+## aiuto: ordinare per prova$id
+last.id <- ""
+for(i in 1:length(prova$id))
+{
+  #anno.freq[i, ] <- c(names(anno.info[i]) , anno.info[[i]]$freq)
+  this.id = prova$id[i];
+  if (this.id != last.id)
+  {
+    print(this.id)
+    last.id <- this.id
+  }
+  
+}
+stopTimer()
+
+length(prova$id)
+length(unique(prova$id))
+
+
+source("~/Documents/GIT/Rstuff/TipsterFunzioni.R") # per info()
+startTimer()
+write.table(prova, file = "fileR_daDividere.txt",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+stopTimer()
+
 
 
