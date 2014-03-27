@@ -4,7 +4,7 @@
 #-----------------------------------------------------------------------------#
 # Lettura dati
 data <- read.delim("esiti tutti/heidel_details.txt", header=F)
-colnames(data) <- c("id", "type", "value", "term", "creation")
+
 #------------------------------------------------------------------------------#
 print(unique(data$value[data$type == "DATE"]))
 
