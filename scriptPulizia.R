@@ -5,7 +5,6 @@ source("~/altracartella/IR_Rstuff/TipsterFunzioni.R") # per info()
 # Lettura 
 data <- read.table("heidel_details&precision.txt", header=T)
 #-------------------------------------------------------------------#
-str(data)
 # Toglie dati con value nullo (2)
 data <- data[-which(data$value == ""), ]
 data <- droplevels(data)
@@ -37,7 +36,6 @@ anno.freq <- matrix(NA, length(names(anno.info)), ncol = 2)
 for(i in 1:length(names(anno.info)))
 {
   anno.freq[i, ] <- c(names(anno.info[i]) , anno.info[[i]]$freq)
-  
 }
 str(anno.freq)
 anno.freq <- as.data.frame(anno.freq)
@@ -104,38 +102,6 @@ data <- read.table("heidel_pulizia.tmp.txt", header=T)
 # serve fare il source del file TipsterFunzioni.R per poter utilizzare la funzione info()
 source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
 # source("D:/IR_Rstuff/TipsterFunzioni.R")
-#------------------------------------#
-# Tipo DATE undefined 
-undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
-undef <- droplevels(undef)
-str(undef)
-levels(undef$value)
-
-#----------------------------------------------------------------#
-# Tipo DATE gran undefined
-# Possibili nuovi year
-
-year.check <- levels(undef$value)[!is.na(as.integer(levels(undef$value)))]
-# quelli che dovrebbero essere giusti
-which((as.integer(year.check) > 1000)&(as.integer(year.check) < 2000))
-year.ok <- year.check[which((as.integer(year.check) > 1000)&(as.integer(year.check) < 2000))]
-year.ok
-# check termini associati 
-term.bo <- data[which(data$value %in% year.ok), ]$term
-term.bo
-# termini tipo 30, 40 etc..
-term.year.ok.check <- levels(term.bo)[which((as.integer(levels(term.bo)) < 101)&(as.integer(levels(term.bo)) >20))]
-undef[which(undef$term %in% term.year.ok.check), ]
-# probabilmente insensati.. da togliere
-#------------------------------------#
-# Tipo DATE gran years
-# ALCUNI VALORI VENGONO DA ESPRESSIONI CHE INDICANO SECONDI E NON DECADI
-years <- data[which((data$type == "DATE")&(data$gran == "years")), ]
-years <- droplevels(years)
-
-levels(years$value)
-years.info <- info(years,terms.frequency= TRUE)
-years.info
 
 #-----------------------------------------------------------------#
 # Scrittura diversi file
