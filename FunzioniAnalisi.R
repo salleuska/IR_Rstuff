@@ -8,6 +8,63 @@ carica.details.precision <- function(path) {
   #str(data)
   data
 }
+
+#-------------------------------------------------------------------#
+
+stato.dataset <- function(data)
+{
+  totale.espressioni <- dim(data)[1]
+  numero.DATE <- dim(data[which(data$type == "DATE"), ])[1]
+  # totale.TIME <- dim(data[data[which(data$type == "TIME"), ])[1]
+  # totale.SET <- dim(data[data[which(data$type == "SET"), ])[1]
+  # totale.DURATION <- dim(data[data[which(data$type == "DURATION"), ])[1]
+  # totale.undefined <- dim(data[which(data$gran == "undefined"), ])[1]
+  numero.undefined.DATE <- dim(data[which((data$type == "DATE")&(data$gran == "undefined")), ])[1]
+  stato <- list(totale.espressioni = totale.espressioni,
+                numero.DATE =  numero.DATE,
+                numero.undefined.DATE = numero.undefined.DATE)
+}
+#-------------------------------------------------------------------#
+# Nota (se proprio farla stampare un po meglio)
+stampa.stato.dataset <- function(data, confronto = FALSE, ...)
+{
+  stato <- stato.dataset(data) 
+  
+  if(confronto)
+  {
+    statoiniziale <- statoiniziale
+    cat("------------------------------------------------------------------------------- \n")
+    cat("Numero totale espressioni \n")
+    cat("Iniziale", "Corrente", "Diff \n", sep = "\t")
+    cat(statoiniziale$totale.espressioni, stato$totale.espressioni,
+        statoiniziale$totale.espressioni - stato$totale.espressioni,"\n" ,sep = "\t")
+    cat("------------------------------------------------------------------------------- \n")
+    cat("Numero totale di tipo DATE \n")
+    cat("Iniziale", "Corrente", "Diff \n", sep = "\t")
+    cat(statoiniziale$numero.DATE, stato$numero.DATE,
+        statoiniziale$numero.DATE -  stato$numero.DATE,"\n" , sep = "\t")
+    cat("------------------------------------------------------------------------------- \n")
+    cat("Numero di undefined di tipo DATE \n")
+    cat("Iniziale", "Corrente", "Diff \n", sep = "\t")
+    cat(statoiniziale$numero.undefined.DATE, stato$numero.undefined.DATE,
+        statoiniziale$numero.undefined.DATE - stato$numero.undefined.DATE, "\n" , sep = "\t")
+    cat("------------------------------------------------------------------------------- \n")  
+  }
+  else
+  {
+    cat("------------------------------------------------------------------------------- \n")
+    cat("Numero totale espressioni \t")
+    cat(stato$totale.espressioni, "\n")
+    cat("------------------------------------------------------------------------------- \n")
+    cat("Numero di totale di tipo DATE \t")
+    cat(stato$numero.DATE,"\n")
+    cat("------------------------------------------------------------------------------- \n")
+    cat("Numero di undefined di tipo DATE \t")
+    cat(stato$numero.undefined.DATE, "\n" )
+    cat("------------------------------------------------------------------------------- \n")
+  }  
+}
+
 #-------------------------------------------------------------------#
 
 # Toglie dati con value nullo (2)
@@ -22,21 +79,22 @@ rimuovi.dati.value.nullo <- function() {
 #-------------------------------------------------------------------#
 # Da controllare (numero di osservazioni)
 stampa.totali.date <- function(){
+  cat("------------------------------------------------------------------------------- \n")
   cat("Numero di undefined di tipo DATE \t")
   cat(dim(data[which((data$type == "DATE")&(data$gran == "undefined")), ])[1], "\n")
-  cat("----------------------------------------- \n")
+  cat("------------------------------------------------------------------------------- \n")
   cat("Numero di year di tipo DATE \t")
   cat(dim(data[which((data$type == "DATE")&(data$gran == "year")), ])[1], "\n")
-  cat("----------------------------------------- \n")
+  cat("------------------------------------------------------------------------------- \n")
   cat("Numero di years di tipo DATE \t") 
   cat(dim(data[which((data$type == "DATE")&(data$gran == "years")), ])[1], "\n")
-  cat("----------------------------------------- \n")
+  cat("------------------------------------------------------------------------------- \n")
   cat("Numero di day/days/month/months/ref di tipo DATE (da non controllare) \t")
   cat(dim(data[which((data$type == "DATE")&(data$gran != "years")&(data$gran != "year")&(data$gran != "undefined")), ])[1], "\n")
-  cat("----------------------------------------- \n")
+  cat("------------------------------------------------------------------------------- \n")
   cat("Numero di totale di tipo DATE \t")
   cat(dim(data[which(data$type == "DATE"), ])[1], "\n")
-  cat("----------------------------------------- \n")
+  cat("------------------------------------------------------------------------------- \n")
 }
 
 #-------------------------------------------------------------------#
@@ -133,12 +191,50 @@ trasforma.undef.day <- function() {
   data
 }
 
+#-------------------------------------------------------------------#
+
+rimuovi.date.anomale <- function(data)
+{
+  # Tipo DATE undefined 
+  undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
+  undef <- droplevels(undef)
+  str(undef)
+  levels(undef$value)
+  # Possibili mesi
+  month <- levels(undef$value)[grep("-[0-9]", levels(undef$value))]
+  month
+  ##########################################################################
+  # CHECK PER ESPRESSIONE REGOLARE
+  #-------------------------------------------------------------------------
+  # valori anomali: valori -2 e -6 e 2427
+  #-------------------------------------------------------------------------
+  month[grep("(^-[0-9]$)|(2427)", month)]
+  
+  undef[which(undef$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
+  month[grep("dsaf", month)]
+  # elimino
+  if(length(which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)])) > 0)
+  {
+    data <- data[- which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
+    data <- droplevels(data)
+  }
+  data
+}
 
 
-
-
-
-
+#-------------------------------------------------------------------#
+# Rimangono i possibili mesi
+undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
+undef <- droplevels(undef)
+str(undef)
+levels(undef$value)
+# Possibili mesi
+month <- levels(undef$value)[grep("-[0-9]", levels(undef$value))]
+month
+# check termini associati
+term.month <- data[which(data$value %in% month), ]$term 
+term.month #OK
+data[which(data$value %in% month), ]$gran <- "month"
 
 
 
