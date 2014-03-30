@@ -7,61 +7,52 @@ undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
 undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
-#
+# Possibili mesi
 month <- levels(undef$value)[grep("-[0-9]", levels(undef$value))]
-# valori -2 e -6 e 2427
-undef[which(undef$value == month[1]), ]
-undef[which(undef$value == month[2]), ]
-undef[which(undef$value == month[44]), ]
+month
+##########################################################################
+# CHECK PER ESPRESSIONE REGOLARE
+#-------------------------------------------------------------------------
+# valori anomali: valori -2 e -6 e 2427
+#-------------------------------------------------------------------------
+month[grep("(^-[0-9]$)|(2427)", month)]
 
-data[which(data$id %in% undef[which(undef$value == month[1]), ]$id), ]
-data[which(data$id %in% undef[which(undef$value == month[2]), ]$id), ]
-data[which(data$id %in% undef[which(undef$value == month[44]), ]$id), ]
+undef[which(undef$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
 
 # elimino
-data <- data[-which(data$value %in% month[1]), ]
-data <- data[-which(data$value %in% month[2]), ]
-data <- data[-which(data$value %in% month[44]), ]
-
+data <- data[- which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
 data <- droplevels(data)
-
+###################################################################################
+#------------------------------#
 # Rimangono i possibili mesi
-month <- month[-c(1, 2, 44)]
+undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
+undef <- droplevels(undef)
+str(undef)
+levels(undef$value)
+# Possibili mesi
+month <- levels(undef$value)[grep("-[0-9]", levels(undef$value))]
+month
 # check termini associati
 term.month <- data[which(data$value %in% month), ]$term 
 term.month #OK
 data[which(data$value %in% month), ]$gran <- "month"
 #------------------------------------------#
+# Quadrimestri
 undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
 undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
 # check Q - quarters
-q <-levels(undef$value)[grep("-[0-9Q3]", levels(undef$value))]
-data[which(data$value %in% q[1]) ,]$gran <- "months"
-#---------------------------------------------------#
-# Check seasons SP SU WI (AU?)
-levels(undef$value)[grep("[SAUWI]", levels(undef$value))]
-undef[which(undef$value %in% levels(undef$value)[grep("[SAUWI]", levels(undef$value))]), ]$term
-data[which(data$value %in% levels(undef$value)[grep("[SAUWI]", levels(undef$value))]), ]$gran <- "months"
-#---------------------------------------------------#
-#---------------------------------------------------#
-# Tipo DATE gran years
-# ALCUNI VALORI VENGONO DA ESPRESSIONI CHE INDICANO SECONDI E NON DECADI
-years <- data[which((data$type == "DATE")&(data$gran == "years")), ]
-years <- droplevels(years)
+# q <- levels(undef$value)[grep("^X+-Q[1-4]$", levels(undef$value))]
+q <- levels(undef$value)[grep("^[0-9]+-Q[05]$", levels(undef$value))]
+q
 
-levels(years$value)
-# I termini sbagliati saranno probabilmente quelli senza '
-check <- levels(years$term)[grep("^(\\d{2})[^\']*s$", levels(years$term))]
-check <- check[-c(10:18, 20)]  
-check
-# check dimensioni
-dim(years[which(years$term %in% check), ])[1]
-dim(data[which(data$term %in% check), ])[1]
-# pulizia 
-data <- data[-which(data$term %in% check), ]
+if(length(which(data$value %in% q)) > 0)
+{
+  data <- data[-which(data$value %in% q) ,]
+}
 data <- droplevels(data)
+
 #--------------------------------------------------------------#
 # DATE e undefined
 undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
@@ -81,18 +72,27 @@ dim(data[which(data$value %in% year.check[which(as.integer(year.check) > 2000 )]
 data <- data[-which(data$value %in% year.check[which(as.integer(year.check) > 2000 )]), ]
 data <- droplevels(data)
 #---------------------------------------------------#
+# backup
+write.table(data, file = "heidel_pulizia.tmp.txt")
+# pulizia workspace e rilettura
+rm(list = ls())
+data <- read.table("heidel_pulizia.tmp.txt", header=T)
+#---------------------------------------------------#
 # DATE e undefined
 undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
 undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
 # Consideriamo i valori bassi (century/years)
-check.century <-levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)]
+
+check.century <- suppressWarnings(levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)])
 check.century
 terms.century <- undef[which(undef$value %in% check.century), ]$term
+
 # quelli del tipo 6000s etc in sospeso
-terms.century[grep("^(\\d{2})[^\']*s$", terms.century)]
-terms.century <- terms.century[-grep("^(\\d{2})[^\']*s$", terms.century)]
+terms.century[grep("^[0-9]+s$", terms.century)]
+terms.century <- terms.century[-grep("^[0-9]+s$", terms.century)]
+
 terms.century <- droplevels(terms.century)
 terms.century
 
@@ -108,81 +108,142 @@ write.table(data, file = "heidel_pulizia.tmp.txt")
 rm(list = ls())
 data <- read.table("heidel_pulizia.tmp.txt", header=T)
 #---------------------------------------------------#
-#----------------------#
-# Questioni in sospeso #
-#----------------------#
-# DATE e undefined
-undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
-undef <- droplevels(undef)
-str(undef)
-# valori tra 1000e e 2000
-check <-levels(undef$value)[which((as.integer(levels(undef$value)) > 1000)&(as.integer(levels(undef$value)) < 2000))]
-# altri
-levels(undef$value)[which(!(levels(undef$value)%in%check))]
-
-terms.check <- undef[which(undef$value %in% check), ]$term
-# termini solo "numeri", c'è da fidarsi che siano date??
-numeri.check <- terms.check[grep("^(\\d{4})*$", terms.check)]
-numeri.check <- droplevels(numeri.check)
-terms.check <- terms.check[-(which(terms.check %in% numeri.check))]
-terms.check <- droplevels(terms.check)
-#-----------------------------#
-# Questioni in sospeso
-# Q0 e Q5??
-data[which(data$value %in% levels(data$value)[grep("Q[05]", levels(data$value))]), ]
-# XXXX tipo DATE da cancellare??
-undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
-undef <- droplevels(undef)
-str(undef)
-xxx <- levels(undef$value)[grep("XXX", levels(undef$value))]
-# decadi 1990s (lunghe)
-years <- data[which((data$type == "DATE")&(data$gran == "years")), ]
-years <- droplevels(years)
-
-levels(years$value)
-# I termini sbagliati saranno probabilmente quelli senza '
-check <- levels(years$term)[grep("^(\\d{2})[^\']*s$", levels(years$term))]
-#-----------#
 # years > 2000
 years <- data[which((data$type == "DATE")&(data$gran == "years")), ]
 years <- droplevels(years)
 levels(years$value)
-check <- levels(years$value)[which(as.integer(levels(years$value)) > 200)]
-years[which(years$value %in% check), ]
-# years < 1000
+check <- suppressWarnings(levels(years$value)[which(as.integer(levels(years$value)) > 200)])
+
+dim(data[which((data$value %in% check)&(data$type == "DATE")), ])[1]
+data[which((data$value %in% check)&(data$type == "DATE")), ]
+
+data <- data[-which((data$value %in% check)&(data$type == "DATE")), ]
+data <- droplevels(data)
+#--------------------------------------------------------#
+# DATE e undefined
 undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
 undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
-# termini in sospeso 6000s (cancello?)
-check.century <-levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)]
+# valori tra 1000e e 2000
+check <-suppressWarnings(levels(undef$value)[which((as.integer(levels(undef$value)) > 1000)&(as.integer(levels(undef$value)) < 2000))])
+length(check)
+# altri (livelli rimasti)
+# levels(undef$value)[which(!(levels(undef$value)%in%check))]
+
+# Termini dei valori "solo numeri"
+terms.check <- undef[which(undef$value %in% check), ]$term
+# termini solo "numeri", c'è da fidarsi che siano date?
+numeri.check <- terms.check[grep("^[0-9]{4}$", terms.check)]
+numeri.check <- droplevels(numeri.check)
+numeri.check
+# Intanto si possono togliere quelli con solo due numeri
+terms.check <- terms.check[-(which(terms.check %in% numeri.check))]
+terms.check <- droplevels(terms.check)
+terms.check
+terms.check[grep("^[0-9]{2}$", terms.check)]
+
+if(length(which((data$term %in% terms.check[grep("^[0-9]{2}$", terms.check)])&(data$type == "DATE")&(data$gran == "undefined"))) > 0)
+{
+  data <- data[-which((data$term %in% terms.check[grep("^[0-9]{2}$", terms.check)])&(data$type == "DATE")&(data$gran == "undefined")), ]
+}
+data <- droplevels(data)
+#----------------------------------------------------------------#
+# Dagli undefined possibili years (century) 
+# Si controllano le frasi
+undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
+undef <- droplevels(undef)
+str(undef)
+levels(undef$value)
+# termini in sospeso 6000s (cancello)
+check.century <- suppressWarnings(levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)])
 check.century
 terms.century <- undef[which(undef$value %in% check.century), ]$term
-#----------------------------------------#
-# Tipo TIME
+# data[which(data$term %in% terms.century), c(1, 3, 4) ]
+# write.table(data[which(data$term %in% terms.century), c(1, 3, 4) ], file = "terms_tocheck.txt",
+#            row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\t")
+
+terms.century <- droplevels(terms.century)
+terms.delete  <- terms.century
+
+if(length(terms.century[grep("^(1[6789])|20", terms.century)]) > 0)
+{
+  data[which(data$term %in% terms.century[grep("^(1[6789])|20", terms.century)]),  ]$gran <- "years"
+  terms.delete <- terms.century[-grep("^(1[6789])|20", terms.century)]
+}
+
+terms.delete <- droplevels(terms.delete)
+data <- data[-which((data$term %in% terms.delete)&(data$gran == "undefined")), ]
+data <- droplevels(data)
+
+#-------------------------------------------------------#
+# backup
+write.table(data, file = "heidel_pulizia.tmp.txt")
+# pulizia workspace e rilettura
+rm(list = ls())
+data <- read.table("heidel_pulizia.tmp.txt", header=T)
+#---------------------------------------------------#
+# DATE e undefined
+undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
+undef <- droplevels(undef)
+str(undef)
+levels(undef$value)
+# valori tra 1000e e 2000
+check <- suppressWarnings(levels(undef$value)[which((as.integer(levels(undef$value)) >= 1000)&(as.integer(levels(undef$value)) < 2000))])
+length(check)
+# altri
+levels(undef$value)[which((levels(undef$value)%in%check))]
+data[which(data$value %in% levels(undef$value)[which((levels(undef$value)%in%check))]), ]$gran <- "year"
+data <- droplevels(data)
+#-----------------------------------------------------------------------------#
+# backup finale
+write.table(data, file = "heidel_pulizia.def.txt")
+# pulizia workspace e rilettura
+rm(list = ls())
+data <- read.table("heidel_pulizia.tmp.txt", header=T)
+#-----------------------------------------------------------------------------#
+# Eventuali da controllare
+# Tipo DATE gran years
+# Alcuni valori provengono da espressioni che potrebbero non indicare decadi (eg. secondi, età)
+years <- data[which((data$type == "DATE")&(data$gran == "years")), ]
+years <- droplevels(years)
+levels(years$value)
+# I termini sbagliati saranno probabilmente quelli senza '
+levels(years$term)
+check <- levels(years$term)[grep("^[0-9]{2}s$", levels(years$term))]
+
+# Frequenza dei termini 
+source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+sec <- years[which(years$term %in% check), ]
+sec <- droplevels(sec)
+sec.info <- info(sec, terms.frequency= TRUE)
+sec.info
+# check dimensioni
+dim(years[which(years$term %in% check), ])[1]
+dim(data[which(data$term %in% check), ])[1]
+#-----------------------------------------------------------------------------#
+# Tipo TIME check
 time <- data[which(data$type == "TIME"), ]
 time <- droplevels(time)
 levels(time$value)
-# inutili?
-timexx <- levels(time$value)[grep("XXXX", levels(time$value))]
-time[which(time$value %in% timexx), ]
+# Tipo SET check
+set <- data[which(data$type == "SET"), ]
+set <- droplevels(set)
+levels(set$value)
+set[which(set$value %in% levels(set$value)[1:10]), ]
 
-# prova
+# Tipo DURATION check
+duration <- data[which(data$type == "DURATION"), ]
+duration <- droplevels(duration)
+levels(duration$value)
 
-time <- data[which(data$type == "TIME"), ]
-time <- droplevels(time)
-not.time <- data[which(!(data$type == "TIME")), ]
-dim(nottime)[1] + dim(time)[1]
+summary(data)
 
-day.new <- as.Date(levels(time$value))
+duration[c(1:100), ]
+length(levels(duration$id))
 
-day.new <- day.new[which(!is.na(day.new))]
-as.character(day.new)
+# tipo DATE
+date <- data[which(data$type == "DATE"), ]
+length(which(date$gran != "undefined"))
+length(which(date$gran == "undefined"))
 
-prova <- data
-levels(droplevels(prova[which(prova$type == "TIME"), ]$value))
-timetoday <- levels(droplevels(prova[which(prova$type == "TIME"), ]$value))
-levels(prova[which(prova$type == "TIME"), ]$value) <- levels(prova[which(prova$type == "TIME"), ]$value)
-as.character(
-  as.Date(timetoday)
-  
