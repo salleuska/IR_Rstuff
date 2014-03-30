@@ -1,7 +1,7 @@
 #heidel_details <- read.delim("~/Scrivania/TipsterData/esiti tutti/heidel_details.txt", header=F)
 #heidel_precision <- read.delim("~/Scrivania/TipsterData/esiti tutti/heidel_datePrecision.txt", header=F)
-heidel_details <- read.delim("Esiti tutti - 20140327/heidel_details.txt", header=F)
-heidel_precision <- read.delim("~/Scrivania/TipsterData/Esiti tutti - 20140327/heidel_datePrecision.txt", header=F)
+heidel_details <- read.delim("heidel_details.txt", header=F)
+heidel_precision <- read.delim("heidel_datePrecision.txt", header=F)
 
 colnames(heidel_details) <- c("id", "type", "value", "term", "creation")
 colnames(heidel_precision) <- c("id", "value", "gran")
@@ -11,7 +11,7 @@ length(levels(heidel_precision$value))
 d <- heidel_details[which(heidel_details$type == "DATE"), ]
 length(unique(d$value))
 #--------------------------#
-otd <- heidel_details[which(heidel_details$type != "DATE"), ]
+notd <- heidel_details[which(heidel_details$type != "DATE"), ]
 notd$gran <- NA
 
 tmp <- cbind(d, heidel_precision$gran)
