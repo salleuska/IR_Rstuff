@@ -15,12 +15,14 @@ month
 #-------------------------------------------------------------------------
 # valori anomali: valori -2 e -6 e 2427
 #-------------------------------------------------------------------------
-month[grep("(^-[0-9]$)|(2427)", month)]
+regex <- "^(-2)|(-6)|(2427)$" # solo -2, -6 o 2427
+#regex <- "^(-[0-9])|(2427)$" # da -0 a -9 o 2427
+month[grep(regex, month)]
 
-undef[which(undef$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
+undef[which(undef$value %in% month[grep(regex, month)]), ]
 
 # elimino
-data <- data[- which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
+data <- data[- which(data$value %in% month[grep(regex, month)]), ]
 data <- droplevels(data)
 ###################################################################################
 #------------------------------#

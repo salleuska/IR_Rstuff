@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------#
-# source("TipsterFunzioni.R")
-source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+source("TipsterFunzioni.R")
+# source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
 #-------------------------------------------------------------------#
 # Lettura 
 carica.details.precision <- function(path) {
@@ -249,16 +249,18 @@ rimuovi.date.anomale <- function(data)
   #-------------------------------------------------------------------------
   # valori anomali: valori -2 e -6 e 2427
   #-------------------------------------------------------------------------
-  month[grep("(^-[0-9]$)|(2427)", month)]
+  regex <- "^(-2)|(-6)|(2427)$" # solo -2, -6 o 2427
+  #regex <- "^(-[0-9])|(2427)$" # da -0 a -9 o 2427
+  month[grep(regex, month)]
   
-  undef[which(undef$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
-  month[grep("dsaf", month)]
+  undef[which(undef$value %in% month[grep(regex, month)]), ]
+  #month[grep("dsaf", month)]   < < < < < < < < ------------------------------------   solo un test?
   # elimino
-  if(length(which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)])) > 0)
+  if(length(which(data$value %in% month[grep(regex, month)])) > 0)
   {
     cat("Numero di osservazioni eliminate \t")
-    cat(dim(data[which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ])[1])
-    data <- data[- which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
+    cat(dim(data[which(data$value %in% month[grep(regex, month)]), ])[1])
+    data <- data[- which(data$value %in% month[grep(regex, month)]), ]
     
   }
   else cat("Niente da eliminare")

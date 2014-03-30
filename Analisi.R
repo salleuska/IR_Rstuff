@@ -2,8 +2,10 @@
 #setwd("~/Scrivania/heidel_data&precision - pulizia")
 #setwd("/home/alan/Documents/GIT/Rstuff")
 #-------------------------------------------------------------------#
-# source("FunzioniAnalisi.R")
-source("/home/sally/altracartella/IR_Rstuff/FunzioniAnalisi.R")
+source("FunzioniAnalisi.R")
+#source("/home/sally/altracartella/IR_Rstuff/FunzioniAnalisi.R")
+
+startTimer()
 
 data <- carica.details.precision("heidel_details&precision.txt")
 
@@ -35,7 +37,7 @@ data <- ricarica.dataset("heidel_pulizia.tmp.txt")
 #----- fine scriptPulizia.R -----#
 #---- scriptPulizia(cont).R -----#
 
-data <- rimuovi.date.anomale(data) # CHECK ESPRESSIONE REGOLARE NELLA FUNZIONE
+data <- rimuovi.date.anomale(data)
 stampa.stato.dataset(data, confronto = TRUE) 
 
 data <- trasforma.undef.month(data)
@@ -68,3 +70,8 @@ stampa.stato.dataset(data, confronto = TRUE)
 #----- Fine pulizia ---- #
 check.valori.undefined(data)
 salva.dataset("heidel_pulizia.def.txt", data)
+
+
+
+
+stopTimer()
