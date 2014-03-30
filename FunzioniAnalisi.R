@@ -464,7 +464,7 @@ rimuovi.da.termini.ambigui <- function(data)
     if(length(terms.century[grep("^(1[6789])|20", terms.century)]) > 0)
     {
       cat("Numero osservazioni rinominate \t")
-      cat(data[which(data$term %in% terms.century[grep("^(1[6789])|20", terms.century)]),  ])
+      cat(dim(data[which(data$term %in% terms.century[grep("^(1[6789])|20", terms.century)]),  ])[1])
       data[which(data$term %in% terms.century[grep("^(1[6789])|20", terms.century)]),  ]$gran <- "years"
       terms.delete <- terms.century[-grep("^(1[6789])|20", terms.century)]
     }
