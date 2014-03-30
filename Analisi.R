@@ -35,26 +35,21 @@ data <- ricarica.dataset("heidel_pulizia.tmp.txt")
 #---- scriptPulizia(cont).R -----#
 
 data <- rimuovi.date.anomale(data) # CHECK ESPRESSIONE REGOLARE NELLA FUNZIONE
-
 stampa.stato.dataset(data, confronto = TRUE) 
 
 data <- trasforma.undef.month(data)
-
 stampa.stato.dataset(data, confronto = TRUE) 
 
 data <- rimuovi.quadrimestri.Q0Q5(data)
-
 stampa.stato.dataset(data, confronto = TRUE) 
 
 data <- rimuovi.undef.maggiori.2100(data)
-
 stampa.stato.dataset(data, confronto = TRUE) 
 
 salva.dataset("heidel_pulizia.tmp.txt", data)
 data <- ricarica.dataset("heidel_pulizia.tmp.txt")
 
 data <- trasforma.undef.years(data)
-
 stampa.stato.dataset(data, confronto = TRUE) 
 
 data <- rimuovi.years.maggiori200(data)
@@ -67,8 +62,8 @@ data <- ricarica.dataset("heidel_pulizia.tmp.txt")
 data <- rimuovi.da.termini.ambigui(data)
 
 data <- trasforma.undef.year(data)
-
 stampa.stato.dataset(data, confronto = TRUE)
 
+#----- Fine pulizia ---- #
 check.valori.undefined(data)
-salva.dataset("heidel_pulizia.tmp.txt", data)
+salva.dataset("heidel_pulizia.def.txt", data)

@@ -100,14 +100,18 @@ stampa.totali.date <- function(){
 
 #-------------------------------------------------------------------#
 
-#-------------------------------------------------------------------#
-
 # Toglie dati con value nullo (2)
 rimuovi.dati.value.nullo <- function() {
-  data <- data[-which(data$value == ""), ]
+  if(length(which(data$value == "") > 0))
+  {  
+    cat("Numero di osservazioni eliminate \t")
+    cat(dim(data[which(data$value == ""), ])[1])
+    data <- data[-which(data$value == ""), ]
+  }
+  else cat("Niente da eliminare \n")
   data <- droplevels(data)
-  #str(data)
-   data
+  
+  data
 }
 
 
@@ -116,7 +120,7 @@ pulisci.anni.poco.frequenti <- function() {
   
   anno <- data[which((data$type == "DATE")&(data$gran == "year")), ]
   anno <- droplevels(anno)
-  str(anno)
+  
   as.integer(levels(anno$value)) 
   
   anno.info <- info(anno)
@@ -127,7 +131,6 @@ pulisci.anni.poco.frequenti <- function() {
     anno.freq[i, ] <- c(names(anno.info[i]) , anno.info[[i]]$freq)
     
   }
-  str(anno.freq)
   anno.freq <- as.data.frame(anno.freq)
   # frequenze come variabile numerica
   anno.freq$V2 <- as.numeric(levels(anno.freq$V2))[anno.freq$V2]
@@ -139,13 +142,16 @@ pulisci.anni.poco.frequenti <- function() {
   anno.datogliere <- which(levels(data$value) %in% levels(anno.drop))
   oss.datogliere <- which(data$value %in% levels(data$value)[anno.datogliere])
   
-  data <- data[-oss.datogliere, ]
+  if(length(oss.datogliere) > 0)
+  {
+    cat("Numero di osservazioni eliminate \t")
+    cat(dim(data[oss.datogliere, ])[1])
+    data <- data[-oss.datogliere, ]
+  }  
+  else cat("Niente da eliminare \n")
+  
   data <- droplevels(data)
-  # check
-  anno <- data[which((data$type == "DATE")&(data$gran == "year")), ]
-  anno <- droplevels(anno)
-  str(anno)
-  anno.info[levels(anno$value)] 
+  
   data
 }
 
@@ -175,8 +181,13 @@ rimuovi.date.undef <- function() {
   #dim(undef[grep("UNDEF", undef$value), ])[1]
   #dim(data[grep("UNDEF", data$value), ])[1]
   #data[grep("UNDEF", data$value), ]
-  
-  data <- data[-grep("UNDEF", data$value), ]
+  if(length(grep("UNDEF", data$value)) > 0)
+  {
+    cat("Numero di osservazioni eliminate \t")
+    cat(dim(data[grep("UNDEF", data$value), ])[1])
+    data <- data[-grep("UNDEF", data$value), ]
+  }
+  else cat("Niente da eliminare")
   data <- droplevels(data)
   #str(data)
   data
@@ -197,9 +208,19 @@ trasforma.undef.day <- function() {
   
   # Aggiunta gran = day per i valori mappati giusti
   new.day <- day.check[!(day.check %in% day.drop)]
+  cat("Numero osservazioni rinominate \t")
+  cat(dim(data[which(data$value %in% new.day), ])[1], "\n")
   data[which(data$value %in% new.day), ]$gran <- "day"
   # Tolgo i valori sbagliati
-  data <- data[- which(data$value %in% day.drop), ]
+  
+  if(length(which(data$value %in% day.drop)) > 0)
+  {
+    cat("Numero di osservazioni eliminate \t")
+    cat(dim(data[which(data$value %in% day.drop), ])[1])
+    data <- data[- which(data$value %in% day.drop), ]
+  }
+  else cat("Niente da eliminare")
+  
   data <- droplevels(data)
   #str(data)
   data
@@ -212,7 +233,6 @@ rimuovi.date.anomale <- function(data)
   # Tipo DATE undefined 
   undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
   undef <- droplevels(undef)
-  str(undef)
   levels(undef$value)
   # Possibili mesi
   month <- levels(undef$value)[grep("-[0-9]", levels(undef$value))]
@@ -229,9 +249,14 @@ rimuovi.date.anomale <- function(data)
   # elimino
   if(length(which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)])) > 0)
   {
+    cat("Numero di osservazioni eliminate \t")
+    cat(dim(data[which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ])[1])
     data <- data[- which(data$value %in% month[grep("(^-[0-9]$)|(2427)", month)]), ]
-    data <- droplevels(data)
+    
   }
+  else cat("Niente da eliminare")
+  
+  data <- droplevels(data)
   data
 }
 
@@ -251,6 +276,8 @@ trasforma.undef.month <- function(data)
   # check termini associati
   term.month <- data[which(data$value %in% month), ]$term 
   term.month #OK
+  cat("Numero osservazioni rinominate \t")
+  cat(dim(data[which(data$value %in% month), ])[1])
   data[which(data$value %in% month), ]$gran <- "month"
  
   data
@@ -270,7 +297,7 @@ rimuovi.quadrimestri.Q0Q5 <- function(data)
   if(length(which(data$value %in% q)) > 0)
   {
     cat("Numero osservazioni eliminate \t")
-    cat(dim(data[-which(data$value %in% q) ,])[1])    
+    cat(dim(data[which(data$value %in% q) ,])[1])    
     data <- data[-which(data$value %in% q) ,]
   }
   data <- droplevels(data)
