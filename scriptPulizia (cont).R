@@ -47,9 +47,12 @@ levels(undef$value)
 q <- levels(undef$value)[grep("^[0-9]+-Q[05]$", levels(undef$value))]
 q
 
-# possibile if da mettere per which(data$value %in% q) 
-data <- data[-which(data$value %in% q) ,]
+if(length(which(data$value %in% q)) > 0)
+{
+  data <- data[-which(data$value %in% q) ,]
+}
 data <- droplevels(data)
+
 #--------------------------------------------------------------#
 # DATE e undefined
 undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
@@ -81,7 +84,8 @@ undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
 # Consideriamo i valori bassi (century/years)
-check.century <-levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)]
+
+check.century <- suppressWarnings(levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)])
 check.century
 terms.century <- undef[which(undef$value %in% check.century), ]$term
 
@@ -108,7 +112,7 @@ data <- read.table("heidel_pulizia.tmp.txt", header=T)
 years <- data[which((data$type == "DATE")&(data$gran == "years")), ]
 years <- droplevels(years)
 levels(years$value)
-check <- levels(years$value)[which(as.integer(levels(years$value)) > 200)]
+check <- suppressWarnings(levels(years$value)[which(as.integer(levels(years$value)) > 200)])
 
 dim(data[which((data$value %in% check)&(data$type == "DATE")), ])[1]
 data[which((data$value %in% check)&(data$type == "DATE")), ]
@@ -122,10 +126,10 @@ undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
 # valori tra 1000e e 2000
-check <-levels(undef$value)[which((as.integer(levels(undef$value)) > 1000)&(as.integer(levels(undef$value)) < 2000))]
+check <-suppressWarnings(levels(undef$value)[which((as.integer(levels(undef$value)) > 1000)&(as.integer(levels(undef$value)) < 2000))])
 length(check)
-# altri
-levels(undef$value)[which(!(levels(undef$value)%in%check))]
+# altri (livelli rimasti)
+# levels(undef$value)[which(!(levels(undef$value)%in%check))]
 
 # Termini dei valori "solo numeri"
 terms.check <- undef[which(undef$value %in% check), ]$term
@@ -139,8 +143,10 @@ terms.check <- droplevels(terms.check)
 terms.check
 terms.check[grep("^[0-9]{2}$", terms.check)]
 
-which((data$term %in% terms.check[grep("^[0-9]{2}$", terms.check)])&(data$type == "DATE")&(data$gran == "undefined"))
-data <- data[-which((data$term %in% terms.check[grep("^[0-9]{2}$", terms.check)])&(data$type == "DATE")&(data$gran == "undefined")), ]
+if(length(which((data$term %in% terms.check[grep("^[0-9]{2}$", terms.check)])&(data$type == "DATE")&(data$gran == "undefined"))) > 0)
+{
+  data <- data[-which((data$term %in% terms.check[grep("^[0-9]{2}$", terms.check)])&(data$type == "DATE")&(data$gran == "undefined")), ]
+}
 data <- droplevels(data)
 #----------------------------------------------------------------#
 # Dagli undefined possibili years (century) 
@@ -150,7 +156,7 @@ undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
 # termini in sospeso 6000s (cancello)
-check.century <-levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)]
+check.century <- suppressWarnings(levels(undef$value)[which(as.integer(levels(undef$value)) < 1000)])
 check.century
 terms.century <- undef[which(undef$value %in% check.century), ]$term
 # data[which(data$term %in% terms.century), c(1, 3, 4) ]
@@ -183,7 +189,7 @@ undef <- droplevels(undef)
 str(undef)
 levels(undef$value)
 # valori tra 1000e e 2000
-check <-levels(undef$value)[which((as.integer(levels(undef$value)) >= 1000)&(as.integer(levels(undef$value)) < 2000))]
+check <- suppressWarnings(levels(undef$value)[which((as.integer(levels(undef$value)) >= 1000)&(as.integer(levels(undef$value)) < 2000))])
 length(check)
 # altri
 levels(undef$value)[which((levels(undef$value)%in%check))]

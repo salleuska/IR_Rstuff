@@ -6,7 +6,8 @@ source("/home/sally/altracartella/IR_Rstuff/FunzioniAnalisi.R")
 
 data <- carica.details.precision("heidel_details&precision.txt")
 
-statoiniziale <- stato.dataset(data)
+# Salvo lo stato iniziale del dataset per poter confrontare i valori tolti
+statoiniziale <- stato.dataset(data) 
 
 stampa.stato.dataset(data)
 
@@ -37,9 +38,37 @@ data <- rimuovi.date.anomale(data) # CHECK ESPRESSIONE REGOLARE NELLA FUNZIONE
 
 stampa.stato.dataset(data, confronto = TRUE) 
 
+data <- trasforma.undef.month(data)
 
+stampa.stato.dataset(data, confronto = TRUE) 
 
+data <- rimuovi.quadrimestri.Q0Q5(data)
 
+stampa.stato.dataset(data, confronto = TRUE) 
 
+data <- rimuovi.undef.maggiori.2100(data)
 
+stampa.stato.dataset(data, confronto = TRUE) 
 
+salva.dataset("heidel_pulizia.tmp.txt", data)
+data <- ricarica.dataset("heidel_pulizia.tmp.txt")
+
+data <- trasforma.undef.years(data)
+
+stampa.stato.dataset(data, confronto = TRUE) 
+
+data <- rimuovi.years.maggiori200(data)
+
+data <- rimuovi.anni.da.termini.errati(data)
+
+salva.dataset("heidel_pulizia.tmp.txt", data)
+data <- ricarica.dataset("heidel_pulizia.tmp.txt")
+
+data <- rimuovi.da.termini.ambigui(data)
+
+data <- trasforma.undef.year(data)
+
+stampa.stato.dataset(data, confronto = TRUE)
+
+check.valori.undefined(data)
+salva.dataset("heidel_pulizia.tmp.txt", data)
