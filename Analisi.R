@@ -72,3 +72,22 @@ check.valori.undefined(data)
 salva.dataset("heidel_pulizia.def.txt", data)
 
 stopTimer()
+
+#--- Scrittura per fileR_daDividere ---#
+
+# Uso su un subset
+set.seed(1234)
+data.originali <- data
+data <- data.originali[which(data.originali$id %in% sample(levels(data.originali$id), 10000)),]
+data <- droplevels(data)
+
+setwd("/home/sally/altracartella/IR_PARSER")
+data.DATE <- data[which(data$type == "DATE"), ]
+data.DATE <- droplevels(data.DATE)
+str(data.DATE[, -4])
+
+# sep = "\t" -->  <id>\t<type>\t<value>\t<creation>\t<gran>
+# sep = " " --> <id> <type> <value> <creation> <gran> (nel parser usa gli spazi  " ")
+
+write.table(data.DATE[, -4], file ="fileR_daDividere.txt" , quote = FALSE, sep = " ", 
+            row.names = FALSE, col.names = F)

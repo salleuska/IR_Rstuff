@@ -51,12 +51,37 @@ stopTimer() #[1] "Tempo trascorso:  2 m 31 s 120171 milli"
 stopCluster(cl)
 #--------------------------------------------------#
 # Prova su tutti i file da fare
+# su più subset?
 setwd("/home/sally/Scrivania/HeidelCollection/R_puliti_divisi")
+
+length(levels(data.originali$id))
+
+data.sub1 <- data.originali[which(data.originali$id %in% levels(data.originali$id)[1:round(113881/6)]),]
+data.sub1 <- droplevels(data.sub1)
+
+data.sub2 <- data.originali[which(data.originali$id %in% levels(data.originali$id)[((round(113881/6)+1):(2*round(113881/6)))]),]
+data.sub2 <- droplevels(data.sub2)
+
+data.sub3 <- data.originali[which(data.originali$id %in% levels(data.originali$id)[((2*round(113881/6)+1):(3*round(113881/6)))]),]
+data.sub3 <- droplevels(data.sub3)
+
+data.sub4 <- data.originali[which(data.originali$id %in% levels(data.originali$id)[((3*round(113881/6)+1):(4*round(113881/6)))]),]
+data.sub4 <- droplevels(data.sub4)
+
+data.sub5 <- data.originali[which(data.originali$id %in% levels(data.originali$id)[((4*round(113881/6)+1):(5*round(113881/6)))]),]
+data.sub5 <- droplevels(data.sub5)
+
+data.sub6 <- data.originali[which(data.originali$id %in% levels(data.originali$id)[(5*round(113881/6) +1):113881]), ]
+data.sub6 <- droplevels(data.sub6)
+
+
+dim(data.sub1)[1] + dim(data.sub2)[1] + dim(data.sub3)[1] + dim(data.sub4)[1] + dim(data.sub5)[1] + dim(data.sub6)[1]
+
 
 cl <- makeCluster(8)
 registerDoParallel(cl)
 startTimer()
-d_ply(data.originali, "id", function(x) write.files(x), .parallel = TRUE)
+d_ply(data.sub1, "id", function(x) write.files(x), .parallel = TRUE)
 
 stopTimer()
 stopCluster(cl)
