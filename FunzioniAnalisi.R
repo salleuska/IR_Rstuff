@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------#
- source("TipsterFunzioni.R")
-# source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+# source("TipsterFunzioni.R")
+ source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
 #-------------------------------------------------------------------#
 # Lettura 
 carica.details.precision <- function(path) {

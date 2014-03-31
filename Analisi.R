@@ -71,7 +71,4 @@ stampa.stato.dataset(data, confronto = TRUE)
 check.valori.undefined(data)
 salva.dataset("heidel_pulizia.def.txt", data)
 
-
-
-
 stopTimer()

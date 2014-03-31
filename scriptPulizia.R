@@ -121,11 +121,9 @@ str(prova)
 write.files <- function(data)
 {
   file.name = paste(data$id[1],"_",data$creation[1], ".txt", sep = "") 
-  subset.to.write <- data[, -c(1,4)]
+  subset.to.write <- data[, c("type", "value", "gran")]
   write.table(subset.to.write, file = file.name,
               row.names = FALSE, col.names = FALSE, quote = FALSE)
 }
 # scrittura
 lapply(split(prova, prova$id), function(x) write.files(x))
-
-
