@@ -3,7 +3,7 @@
 #setwd("/home/alan/Documents/GIT/Rstuff")
 #-------------------------------------------------------------------#
 source("FunzioniAnalisi.R")
-#source("/home/sally/altracartella/IR_Rstuff/FunzioniAnalisi.R")
+# source("/home/sally/altracartella/IR_Rstuff/FunzioniAnalisi.R")
 
 startTimer()
 
@@ -16,7 +16,7 @@ stampa.stato.dataset(data)
 
 data <- rimuovi.dati.value.nullo()
 
-stampa.totali.date();
+# stampa.totali.date();
 
 data <- pulisci.anni.poco.frequenti()
 

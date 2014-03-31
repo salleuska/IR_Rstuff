@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------#
-source("TipsterFunzioni.R")
+ source("TipsterFunzioni.R")
 # source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
 #-------------------------------------------------------------------#
 # Lettura 
@@ -240,21 +240,21 @@ rimuovi.date.anomale <- function(data)
   # Tipo DATE undefined 
   undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
   undef <- droplevels(undef)
-  levels(undef$value)
+  # levels(undef$value)
+  
   # Possibili mesi
   month <- levels(undef$value)[grep("-[0-9]", levels(undef$value))]
-  month
-  ##########################################################################
-  # CHECK PER ESPRESSIONE REGOLARE
-  #-------------------------------------------------------------------------
-  # valori anomali: valori -2 e -6 e 2427
-  #-------------------------------------------------------------------------
-  regex <- "^(-2)|(-6)|(2427)$" # solo -2, -6 o 2427
-  #regex <- "^(-[0-9])|(2427)$" # da -0 a -9 o 2427
-  month[grep(regex, month)]
+  # month
   
-  undef[which(undef$value %in% month[grep(regex, month)]), ]
-  #month[grep("dsaf", month)]   < < < < < < < < ------------------------------------   solo un test?
+  #--------------------------------------------------
+  # valori anomali: valori -2 e -6 e 2427-09
+  #--------------------------------------------------
+  regex <- "^(-2)|(-6)|(2427-09)$" # solo -2, -6 o 2427
+  # regex <- "^(-[0-9])|(2427)$" # da -0 a -9 o 2427
+  
+  # month[grep(regex, month)]
+  # undef[which(undef$value %in% month[grep(regex, month)]), ]
+  
   # elimino
   if(length(which(data$value %in% month[grep(regex, month)])) > 0)
   {
@@ -278,10 +278,10 @@ trasforma.undef.month <- function(data)
   undef <- data[which((data$type == "DATE")&(data$gran == "undefined")), ]
   undef <- droplevels(undef)
   
-  levels(undef$value)
+  # levels(undef$value)
   # Possibili mesi
   month <- levels(undef$value)[grep("-[0-9]", levels(undef$value))]
-  month
+  # month
   # check termini associati
   term.month <- data[which(data$value %in% month), ]$term 
   term.month #OK
