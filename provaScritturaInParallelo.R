@@ -41,9 +41,10 @@ registerDoParallel(cl)
 
 library(plyr)
 
-setwd("/home/sally/Scrivania/HeidelCollection/R_puliti_divisi_subset")
+#setwd("/home/sally/Scrivania/HeidelCollection/R_puliti_divisi_subset")
+setwd("R_puliti_divisi_subset")
 startTimer()
-d_ply(data, "id", function(x) write.files(x), .parallel = TRUE, .inform = TRUE )
+d_ply(data, "id", write.files, .parallel = TRUE)
 
 stopTimer() #[1] "Tempo trascorso:  2 m 31 s 120171 milli"
 

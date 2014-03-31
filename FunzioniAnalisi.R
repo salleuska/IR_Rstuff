@@ -1,7 +1,24 @@
 #-------------------------------------------------------------------#
-# source("TipsterFunzioni.R")
- source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+source("TipsterFunzioni.R")
+# source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
 #-------------------------------------------------------------------#
+
+set.config <- function(user) {
+  
+  if (user == "alan") {
+    config[path1] = ""
+    config[path2] = ""
+    config[path3] = ""
+  }
+  else {
+    config[path1] = ""
+    config[path2] = ""
+    config[path3] = ""
+  }
+  config
+}
+
+
 # Lettura 
 carica.details.precision <- function(path) {
   data <- read.table(path, header=T)

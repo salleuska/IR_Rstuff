@@ -1,5 +1,8 @@
 #heidel_details <- read.delim("~/Scrivania/TipsterData/esiti tutti/heidel_details.txt", header=F)
 #heidel_precision <- read.delim("~/Scrivania/TipsterData/esiti tutti/heidel_datePrecision.txt", header=F)
+
+setwd("/home/alan/Documents/Parser_R_txt/")
+
 heidel_details <- read.delim("heidel_details.txt", header=F)
 heidel_precision <- read.delim("heidel_datePrecision.txt", header=F)
 

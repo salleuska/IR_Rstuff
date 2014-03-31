@@ -2,7 +2,13 @@
 #setwd("~/Scrivania/heidel_data&precision - pulizia")
 #setwd("/home/alan/Documents/GIT/Rstuff")
 #-------------------------------------------------------------------#
+
+setwd("/home/alan/Documents/GIT/Rstuff")
 source("FunzioniAnalisi.R")
+
+
+
+setwd("/home/alan/Documents/Parser_R_txt/")
 # source("/home/sally/altracartella/IR_Rstuff/FunzioniAnalisi.R")
 
 startTimer()
@@ -72,6 +78,13 @@ check.valori.undefined(data)
 salva.dataset("heidel_pulizia.def.txt", data)
 
 stopTimer()
+
+
+
+# salva dataset per splitter
+write.table(data, file = "data_to_split.txt", sep="\t",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+
 
 #--- Scrittura per fileR_daDividere ---#
 
