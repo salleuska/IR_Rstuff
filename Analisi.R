@@ -1,18 +1,18 @@
-# setwd("~/Scrivania/TipsterData")
-#setwd("~/Scrivania/heidel_data&precision - pulizia")
-#setwd("/home/alan/Documents/GIT/Rstuff")
-#-------------------------------------------------------------------#
-
-setwd("/home/alan/Documents/GIT/Rstuff")
-source("FunzioniAnalisi.R")
-
-
-
-setwd("/home/alan/Documents/Parser_R_txt/")
-# source("/home/sally/altracartella/IR_Rstuff/FunzioniAnalisi.R")
+# Rimane questo blocchetto di codice da controllare all'inzio dello script,
+# non ho trovato niente di meglio (o meglio non volevo perderci troppo tempo)
+# NOTA: getwd() restituisce la working directory corrente
+#------------------------------------------------------------------#
+# source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+# config <- set.config(user = "alan")
+source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+config <- set.config(user = "sally")
+config
+#------------------------------------------------------------------#
+source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 
 startTimer()
 
+setwd(config[2])
 data <- carica.details.precision("heidel_details&precision.txt")
 
 # Salvo lo stato iniziale del dataset per poter confrontare i valori tolti
@@ -79,28 +79,16 @@ salva.dataset("heidel_pulizia.def.txt", data)
 
 stopTimer()
 
+#---- Scrittura dataset per splitter ----#
+data <- ricarica.dataset("heidel_pulizia.def.txt")
 
+# selezionare subset = T e impostare ndoc = n in 
+# subset.data per usare solo un sottonsieme 
+# generato da n documenti
+data <- subset.data(data)
 
 # salva dataset per splitter
+setwd(config[3])
 write.table(data, file = "data_to_split.txt", sep="\t",
             row.names = FALSE, col.names = FALSE, quote = FALSE)
 
-
-#--- Scrittura per fileR_daDividere ---#
-
-# Uso su un subset
-set.seed(1234)
-data.originali <- data
-data <- data.originali[which(data.originali$id %in% sample(levels(data.originali$id), 10000)),]
-data <- droplevels(data)
-
-setwd("/home/sally/altracartella/IR_PARSER")
-data.DATE <- data[which(data$type == "DATE"), ]
-data.DATE <- droplevels(data.DATE)
-str(data.DATE[, -4])
-
-# sep = "\t" -->  <id>\t<type>\t<value>\t<creation>\t<gran>
-# sep = " " --> <id> <type> <value> <creation> <gran> (nel parser usa gli spazi  " ")
-
-write.table(data.DATE[, -4], file ="fileR_daDividere.txt" , quote = FALSE, sep = " ", 
-            row.names = FALSE, col.names = F)

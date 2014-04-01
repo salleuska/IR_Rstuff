@@ -14,8 +14,8 @@ data <- droplevels(data)
 
 #-------------------------------------------------#
 setwd("/home/sally/Scrivania/TipsterData/prova")
-install.packages("foreach") 
-install.packages("doParallel") 
+# install.packages("foreach") 
+# install.packages("doParallel") 
 # Per info
 # help(doParallel) 
 # vignette("gettingstartedParallel"
@@ -24,7 +24,7 @@ write.files <- function(data)
 {
   file.name = paste(data$id[1],"_",data$creation[1], ".txt", sep = "") 
   subset.to.write <- data[, c("type", "value", "gran")]
-  write.table(subset.to.write, file = file.name,
+  write.table(subset.to.write, file = file.name, sep = " ",
               row.names = FALSE, col.names = FALSE, quote = FALSE)
 }
 
@@ -41,7 +41,7 @@ registerDoParallel(cl)
 
 library(plyr)
 
-#setwd("/home/sally/Scrivania/HeidelCollection/R_puliti_divisi_subset")
+# setwd("/home/sally/Documents/HeidelCollection/R_puliti_divisi (vuota)")
 setwd("R_puliti_divisi_subset")
 startTimer()
 d_ply(data, "id", write.files, .parallel = TRUE)

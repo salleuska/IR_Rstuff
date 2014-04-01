@@ -1,24 +1,8 @@
 #-------------------------------------------------------------------#
-source("TipsterFunzioni.R")
-# source("~/altracartella/IR_Rstuff/TipsterFunzioni.R")
+source(paste(config[1], "TipsterFunzioni.R", sep = ""))
 #-------------------------------------------------------------------#
 
-set.config <- function(user) {
-  
-  if (user == "alan") {
-    config[path1] = ""
-    config[path2] = ""
-    config[path3] = ""
-  }
-  else {
-    config[path1] = ""
-    config[path2] = ""
-    config[path3] = ""
-  }
-  config
-}
-
-
+ 
 # Lettura 
 carica.details.precision <- function(path) {
   data <- read.table(path, header=T)
@@ -520,3 +504,18 @@ trasforma.undef.year <- function(data)
 }
 
 #-------------------------------------------------------------------#
+
+subset.data <- function(data, subset = FALSE, ndoc = 0)
+{ # subset dei dati pseudo casuale
+  if(subset)
+  {
+    if(ndoc < 1) cat("Scegli il numero di documenti ndoc in subset.data(data, subset, ndoc)")
+    else
+    {
+      set.seed(1234)
+      data <- data[which(data$id %in% sample(levels(data$id), ndoc)),]
+      data <- droplevels(data)
+    } 
+  }
+  data  
+}
