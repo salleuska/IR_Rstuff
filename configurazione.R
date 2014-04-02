@@ -7,8 +7,8 @@ set.config <- function(user = "")
   if (user == "alan") 
   {
     config[1] = "/home/alan/Documents/GIT/Rstuff/"
-    config[2] = ""
-    config[3] = ""
+    config[2] = "/home/alan/Documents/HeidelData/"
+    config[3] = "/home/alan/Documents/Parser_R_txt/"
   }
   else if(user == "sally")
   {
