@@ -80,12 +80,13 @@ salva.dataset("heidel_pulizia.def.txt", data)
 stopTimer()
 
 #---- Scrittura dataset per splitter ----#
+# setwd(config[2])
 data <- ricarica.dataset("heidel_pulizia.def.txt")
 
 # selezionare subset = T e impostare ndoc = n in 
 # subset.data per usare solo un sottonsieme 
 # generato da n documenti
-data <- subset.data(data)
+data <- subset.data(data, subset= T, ndoc= 1000)
 
 # salva dataset per splitter
 setwd(config[3])
