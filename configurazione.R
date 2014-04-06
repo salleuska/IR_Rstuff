@@ -1,9 +1,12 @@
 set.config <- function(user = "") 
 {
   config <- numeric(3) # in caso di aggiunte di percorsi cambiare la lunghezza 
-  names(config) <- c("path per il source delle funzioni", 
-                     "path dati", 
-                     "path scrittura data_to_split")
+  #names(config) <- c("path per il source delle funzioni", 
+  #                   "path dati", 
+  #                   "path scrittura data_to_split")
+  names(config) <- c("sourcepath", 
+                     "datapath", 
+                     "txtpath")
   if (user == "alan") 
   {
     config[1] = "/home/alan/Documents/GIT/Rstuff/"
