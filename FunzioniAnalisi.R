@@ -288,7 +288,10 @@ trasforma.undef.month <- function(data)
   term.month #OK
   cat("Numero osservazioni rinominate \t")
   cat(dim(data[which(data$value %in% month), ])[1])
-  data[which(data$value %in% month), ]$gran <- "month"
+  if (length(data[which(data$value %in% month), ]$gran) > 0)
+  {
+    data[which(data$value %in% month), ]$gran <- "month"
+  }
  
   data
 }  
@@ -519,3 +522,22 @@ subset.data <- function(data, subset = FALSE, ndoc = 0)
   }
   data  
 }
+
+
+
+
+
+
+
+#installed.packages()
+
+#install.packages("plyr")
+#install.packages("stringr")
+#install.packages("memoise")
+#install.packages("lubridate")
+
+
+
+
+
+

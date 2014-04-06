@@ -3,6 +3,9 @@
 
 # setwd("/home/alan/Documents/Parser_R_txt/")
 
+source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+config <- set.config(user = "alan")
+
 setwd(config[3])
 
 heidel_details <- read.delim("heidel_details.txt", header=F)
