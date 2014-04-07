@@ -90,7 +90,6 @@ prova <- droplevels(prova)
 hist(prova$day, breaks = "day")
 
 # hist(as.mcmc(prova$day), prob = T)
-
 int <- HPDinterval(as.mcmc(prova$day), prob=0.9)
 int
 abline(v= int[1], col = 2)
@@ -105,9 +104,32 @@ abline(v= int[2], col = 2)
 # R CMD INSTALL LaplacesDemon_13.03.04.tar.gz 
 
 library(LaplacesDemon)
-int <- p.interval(as.numeric(prova$day), MM = T, prob = 0.2)
-p.interval
+int <- p.interval(as.numeric(prova$day), MM = T, prob = 0.5)
+int
 abline(v= int[1], col = 2)
 abline(v= int[2], col = 2)
 
+p.interval(as.numeric(prova$day), MM = T, prob = 0.5, plot = T)
+
 # Sembra funzionare solo che gli intervalli mulitmodali me li stampa e basta
+# però ha una funzione che identifica se la distribuzione ha più di una moda
+is.multimodal(as.numeric(prova$day))
+
+#--------------------------------------------------------------------------------#
+install.packages("hdrcde")
+library(hdrcde)
+
+prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[3]), ]
+prova <- droplevels(prova)
+
+# Distribuzione
+hist(prova$day, breaks = "day", ylim = c(0, 0.0050))
+
+dd <- density(as.numeric(prova$day)) # da vedere come stimare (di default usa una mistura di normali)
+lines(dd, col = 2)
+hdr <- hdrconf(as.numeric(prova$day), list(x = dd$x, y = dd$y), prob = 0.95, conf = 0.95)
+hdr
+abline(v = hdr$hdr[1], col = 3)
+abline(v = hdr$hdr[2], col = 3)
+abline(v = hdr$hdr[3], col = 3)
+abline(v = hdr$hdr[4], col = 3)
