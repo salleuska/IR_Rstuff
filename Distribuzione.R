@@ -2,10 +2,10 @@
 # non ho trovato niente di meglio (o meglio non volevo perderci troppo tempo)
 # NOTA: getwd() restituisce la working directory corrente
 #------------------------------------------------------------------#
-source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
-config <- set.config(user = "alan")
-#source("configurazione.R")
-#config <- set.config(user = "sally")
+# source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+# config <- set.config(user = "alan")
+# source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+# source("configurazione.R")
 config
 #------------------------------------------------------------------#
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
