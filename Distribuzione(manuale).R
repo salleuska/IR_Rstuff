@@ -87,9 +87,7 @@ estremi.sup - estremi.lo
 # da aggiustare per intervalli
 hdr <- function(prob = 0.9, data)
 {
-  out <- numeric(3)
-  freq <- table(data$day)/length(data$day)
-  freq.ord <- sort(freq, decreasing= T)
+  freq.ord <- sort(table(data$day)/length(data$day), decreasing= T)
   cum.freq <- as.numeric(freq.ord[1])
   date <- as.Date(names(freq.ord)[1])
   while(sum(cum.freq) < prob)
@@ -98,22 +96,23 @@ hdr <- function(prob = 0.9, data)
     cum.freq <- c(cum.freq, freq.ord[i+ 1])
     date <- c(date, as.Date(names(freq.ord)[i +1]))
   }
-  out <- c(sum(cum.freq), as.numeric(max(date) - min(date)))
-  
+  date <- sort(date)
+  estremi.lo <- c(min(date), date[which(diff.Date(date) != 1) + 1])
+  estremi.up <- c(date[which(diff.Date(date) !=1)], max(date))
+
+ list(lower = estremi.lo, upper = estremi.up, prob = sum(cum.freq))
 }
+
 test <- hdr(0.9, data = prova)
 
 str(test)
 
 library(plyr)
 startTimer()
-test <- daply(droplevels(dim.temp[1:40000, ]), "id", function(x) hdr(data = x))
+test <- dlply(droplevels(dim.temp), "id", function(x) hdr(data = x))
 stopTimer()
 
-as.data.frame(test)
-
-# NOTA: bisogna identificare i possibili buchi.. pper ora l'intervallo restituito è solo la
-# differenza tra minimo è massimo.. Potrebbe bastare tenere traccia degli indici..
+str(test)
 
 # Eventualmente 
 library(doParallel)
