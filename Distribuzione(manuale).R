@@ -17,7 +17,7 @@ colnames(dim.temp) <- c("id", "day")
 str(dim.temp)
 dim.temp$day <- as.Date(dim.temp$day)
 
-# Prova "a mano"
+# Calcolo "a mano"
 # considero la distribuzione discreta empirica
 
 prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[13]), ]
@@ -31,6 +31,9 @@ plot(sort(tb, decreasing= T), type = "h", ylim = c(0, max(sort(tb))))
 # calcola le probabilità empiriche (frequenze/tot) e le ordina in maniera descrescente;
 # le somma fino a quando non viene raggiunta la proporzione di densità di probabilità
 # voluta, e restituisce la lista delle date associate 
+# avendo una distribuzione discreta, la probabilità richiesta è approssimata al valore
+# maggiore più vicino
+
 hdr0 <- function(prob = 0.95, data)
 {
   freq <- table(data$day)/length(data$day)
@@ -47,17 +50,41 @@ hdr0 <- function(prob = 0.95, data)
 }
 
 startTimer()
-test <- hdr0(0.7, data = prova)
+test <- hdr0(0.9, data = prova)
 stopTimer()
 
-plot(as.Date(test$date), type = "p")
 
-summary(as.Date(test$date))
-max(as.Date(test$date)) - min(as.Date(test$date))
+# Prove per più intervalli
+startTimer()
+test <- hdr0(0.8, data = prova)
+stopTimer()
 
 
+plot(as.Date(test$date), seq(1:length(test$date)), type = "h")
+
+# Usare le differenze per vedere se ci sono più intervalli?
+
+sort(as.Date(test$date))
+diff(sort(as.Date(test$date)))
+
+# prove per il recupero degli intervalli
+cbind(sort(test$date), c(0, diff.Date(sort(as.Date(test$date)))))
+
+which(diff(sort(as.Date(test$date))) != 1)
+
+
+estremi.lo <- as.Date(sort(test$date)[which(diff.Date(sort(as.Date(test$date))) != 1)+ 1])
+estremi.lo <- c(min(as.Date(test$date)), estremi.lo)
+estremi.sup <- as.Date(sort(test$date)[which(diff.Date(sort(as.Date(test$date))) != 1)])
+estremi.sup <- c(estremi.sup ,  max(as.Date(test$date)))
+
+estremi.lo
+estremi.sup
+
+estremi.sup - estremi.lo
 #-------------------------------------------------------------#
 # modifiche per applicazione
+# da aggiustare per intervalli
 hdr <- function(prob = 0.9, data)
 {
   out <- numeric(3)
