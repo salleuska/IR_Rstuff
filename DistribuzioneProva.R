@@ -8,17 +8,18 @@ source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
 config <- set.config(user = "sally")
 config
 #------------------------------------------------------------------#
+source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 setwd(config[3])
 
 # Nota: ho usato una parte dei dati (generata da 1000 documenti)
 dim.temp <- read.delim("heidel_dimensioneTemporale.txt", header = F)
 colnames(dim.temp) <- c("id", "day")
 str(dim.temp)
+dim.temp$day <- as.Date(dim.temp$day)
 
 #-------------------------------------------------------------------#
 # PROVA (si può ignorare)
 # Gestion date in R-base (rappresentazione di tutto il dataset - prove)
-dim.temp$day <- as.Date(dim.temp$day)
 str(dim.temp)
 summary(dim.temp$day)
 hist(dim.temp$day, breaks = "year")
@@ -83,7 +84,7 @@ abline(v= int[2], col = 2)
 
 ##################################
 # terzo documento (bimodale)
-prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[3]), ]
+prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[89]), ]
 prova <- droplevels(prova)
 
 # Distribuzione
@@ -123,21 +124,21 @@ prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[3]), ]
 prova <- droplevels(prova)
 
 # Distribuzione
-hist(prova$day, breaks = "day", ylim = c(0, 0.0050))
+hist(prova$day, breaks = "day")
 
 dd <- density(as.numeric(prova$day)) # da vedere come stimare (di default usa una mistura di normali)
 lines(dd, col = 2)
-hdr <-   hdrconf(as.numeric(prova$day), list(x = dd$x, y = dd$y), prob= 0.90)
+hdr <-   hdrconf(as.numeric(prova$day), list(x = dd$x, y = dd$y), prob = 0.90, conf = 0.90)
 hdr
 abline(v = hdr$hdr[1], col = 3)
 abline(v = hdr$hdr[2], col = 3)
 abline(v = hdr$hdr[3], col = 3)
 abline(v = hdr$hdr[4], col = 3)
 
-# es multimodale
-prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[90]), ]
+
+prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[12]), ]
 prova <- droplevels(prova)
-hist(prova$day, breaks = "day", ylim = c(0, 0.0050))
+hist(prova$day, breaks = "day")
 dd <- density(as.numeric(prova$day)) # da vedere come stimare (di default usa una mistura di normali)
 lines(dd, col = 2)
 hdr <-   hdrconf(as.numeric(prova$day), list(x = dd$x, y = dd$y), prob= 0.90)
@@ -147,3 +148,36 @@ abline(v = hdr$hdr[2], col = 3)
 abline(v = hdr$hdr[3], col = 3)
 abline(v = hdr$hdr[4], col = 3)
 
+
+# Prova "a mano"
+# considero la distribuzione discreta empirica
+
+prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[17]), ]
+prova <- droplevels(prova)
+
+tb <- table(prova$day)/length(prova$day)
+plot(tb, type = "h")
+
+plot(sort(tb, decreasing= T), type = "l", ylim = c(0, max(sort(tb))))
+
+hdr <- function(prob, data)
+{
+  freq <- table(data$day)/length(data$day)
+  freq.ord <- sort(freq, decreasing= T)
+  cum.freq <- as.numeric(tb.ord[1])
+  date <- names(frew.ord)[1]
+  while(sum(cum.freq) < prob)
+  {
+    i <- length(cum.freq)
+    cum.freq <- c(cum.freq, freq.ord[i+ 1])
+    date <- c(date, names(freq.ord)[i +1])
+  }
+  list(date = date, prob = sum(cum.freq))
+}
+
+startTimer()
+ba <- hdr(0.9, data = prova)
+stopTimer()
+
+summary(as.Date(ba$date))
+max(as.Date(ba$date)) - min(as.Date(ba$date))
