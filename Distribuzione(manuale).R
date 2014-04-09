@@ -178,5 +178,5 @@ startTimer()
 test1 <- dlply(dim.temp, "id", function(x) hdr1(data = x))
 stopTimer()
 # [1] "Tempo trascorso:  1 m 30 s 60651 milli"
-
+?options
 str(test1)
