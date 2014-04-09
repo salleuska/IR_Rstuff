@@ -4,8 +4,8 @@
 #------------------------------------------------------------------#
 source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
 config <- set.config(user = "alan")
-#source("configurazione.R")
-#config <- set.config(user = "sally")
+# source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+# config <- set.config(user = "sally")
 config
 #------------------------------------------------------------------#
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))

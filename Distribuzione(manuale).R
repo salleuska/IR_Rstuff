@@ -12,16 +12,17 @@ source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 setwd(config[3])
 
 # Nota: ho usato una parte dei dati (generata da 1000 documenti)
+startTimer()
 dim.temp <- read.delim("heidel_dimensioneTemporale.txt", header = F)
 colnames(dim.temp) <- c("id", "day")
 str(dim.temp)
 dim.temp$day <- as.Date(dim.temp$day)
+stopTimer()
+# Lettura e conversione Tempo trascorso:  22 s 983 milli"
+#-------------------------------------------------------------------#
+# Calcolo sulla distribuzione discreta empirica
 
-# Calcolo "a mano"
-# considero la distribuzione discreta empirica
-
-prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[13]), ]
-prova <- droplevels(prova)
+prova <- droplevels(dim.temp[which(dim.temp$id ==levels(dim.temp$id)[45]), ])
 
 tb <- table(prova$day)/length(prova$day)
 plot(tb, type = "h")
@@ -53,7 +54,7 @@ startTimer()
 test <- hdr0(0.9, data = prova)
 stopTimer()
 
-
+test
 # Prove per più intervalli
 startTimer()
 test <- hdr0(0.8, data = prova)
@@ -84,9 +85,10 @@ estremi.sup
 estremi.sup - estremi.lo
 #-------------------------------------------------------------#
 # modifiche per applicazione
-# da aggiustare per intervalli
-hdr <- function(prob = 0.9, data)
+data= prova
+hdr <- function(data)
 {
+  prob = 0.9
   freq.ord <- sort(table(data$day)/length(data$day), decreasing= T)
   cum.freq <- as.numeric(freq.ord[1])
   date <- as.Date(names(freq.ord)[1])
@@ -103,24 +105,78 @@ hdr <- function(prob = 0.9, data)
  list(lower = estremi.lo, upper = estremi.up, prob = sum(cum.freq))
 }
 
-test <- hdr(0.9, data = prova)
+test <- hdr(data = prova)
 
 str(test)
 
 library(plyr)
 startTimer()
-test <- dlply(droplevels(dim.temp), "id", function(x) hdr(data = x))
+test <- dlply(droplevels(dim.temp[1:40000, ]), "id", function(x) hdr(data = x))
 stopTimer()
+# "Tempo trascorso:  10 s 748 milli"
+# save(test, file="intervalliSubset.RData")
 
 str(test)
 
 # Eventualmente 
 library(doParallel)
-
 # registerDoParallel()
 # si può scegliere il numero di copie di R che girano in parallelo con makeCluster
 cl <- makeCluster(4)
-registerDoParallel(cl)
+registerDoParallel(cl, cores = 2)
 
-prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[13]), ]
-prova <- droplevels(prova)
+library(doMC)
+registerDoMC()
+getDoParWorkers()
+
+startTimer()
+test <- dlply(dim.temp, "id", function(x) hdr(data = x), .parallel = T)
+stopTimer()
+# 53 minuti circa (oggetto list prodotto salvato in 
+# /home/sally/Documents/Parser_R_txt/intervalliSubset.RData)
+#----------------------------------------------------------------------------#
+# modifiche per applicazione (calcolo solo fino al 0.1 per "risparmiare tempo"
+# ordinando in maniera crescente
+check <- date
+date
+check
+hdr1 <- function(data)
+{
+  prob = 0.08
+  freq.ord <- sort(table(data$day)/length(data$day), decreasing= F)
+  cum.freq <- as.numeric(freq.ord[1])
+  while(sum(cum.freq) < prob)
+  {
+    i <- length(cum.freq)
+    cum.freq <- c(cum.freq, freq.ord[i+ 1])
+
+  }
+  date <- sort(as.Date(names(freq.ord)[-c(1:length(cum.freq))]))
+  estremi.lo <- c(min(date), date[which(diff.Date(date) != 1) + 1])
+  estremi.up <- c(date[which(diff.Date(date) !=1)], max(date))
+  
+  list(lower = estremi.lo, upper = estremi.up, prob = 1-sum(cum.freq))
+}
+
+prova <- droplevels(dim.temp[which(dim.temp$id == "WSJ870113-0151"), ])
+tb <- table(prova$day)/length(prova$day)
+plot(tb, type = "h")
+prova
+
+hdr1(prova)
+
+library(plyr)
+startTimer()
+test1 <- dlply(droplevels(dim.temp[1:40000, ]), "id", function(x) hdr1(data = x))
+stopTimer()
+# [1] "Tempo trascorso:  706 milli"
+# I warning sono dovuti a quei documenti che hanno solo una data
+# dovrebbero essere 79 in tutto il dataset
+
+library(plyr)
+startTimer()
+test1 <- dlply(dim.temp, "id", function(x) hdr1(data = x))
+stopTimer()
+# [1] "Tempo trascorso:  1 m 30 s 60651 milli"
+
+str(test1)
