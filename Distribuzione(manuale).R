@@ -22,10 +22,11 @@ stopTimer()
 #-------------------------------------------------------------------#
 # Calcolo sulla distribuzione discreta empirica
 
-prova <- droplevels(dim.temp[which(dim.temp$id ==levels(dim.temp$id)[45]), ])
+prova <- droplevels(dim.temp[which(dim.temp$id ==levels(dim.temp$id)[8]), ])
 
 tb <- table(prova$day)/length(prova$day)
 plot(tb, type = "h")
+# Ordinamento decrescente
 plot(sort(tb, decreasing= T), type = "h", ylim = c(0, max(sort(tb))))
 
 # La seguente funzione:
@@ -53,18 +54,18 @@ hdr0 <- function(prob = 0.95, data)
 startTimer()
 test <- hdr0(0.9, data = prova)
 stopTimer()
-
 test
+
 # Prove per più intervalli
 startTimer()
 test <- hdr0(0.8, data = prova)
 stopTimer()
 
+# Uso le differenze tra le date per vedere se ci sono più intervalli
+# Differenze pari a 1 corrispondono a giorni consecutivi (quindi facenti parte dello stesso
+# intervallo), mentre differenze diverse individuano i punti di "salot" tra i diversi intervalli
 
-plot(as.Date(test$date), seq(1:length(test$date)), type = "h")
-
-# Usare le differenze per vedere se ci sono più intervalli?
-
+# Prima ordino le date 
 sort(as.Date(test$date))
 diff(sort(as.Date(test$date)))
 
@@ -82,12 +83,23 @@ estremi.sup <- c(estremi.sup ,  max(as.Date(test$date)))
 estremi.lo
 estremi.sup
 
+# sottraendo i due vettori ottengo le ampiezze in giorni
+# (nel caso di 0 la distribuzione aveva dei picchi in quei giorni)
 estremi.sup - estremi.lo
+
+# Ho fatto varie prove cambiando l'indice del documento in 
+# prova <- droplevels(dim.temp[which(dim.temp$id ==levels(dim.temp$id)[8]), ])
+
 #-------------------------------------------------------------#
-# modifiche per applicazione
-data= prova
+# prima modifica per applicazione
+
 hdr <- function(data)
 {
+  # Ho fissato prob nella funzione perchè volendo fare delle prove stfruttando la funzione
+  # in parallelo, era problematico che la funzione predesse altri parametri oltre i dati
+  # La modifica sostanziale sta nell'output che consiste in una lista di oggetti:
+  # estremi inferiori e superiori degli intervalli e probabilità di densità raggiunta
+  # (avendo somme e non integrali, è possibile che si ottenga un valore diverso da 0.9)
   prob = 0.9
   freq.ord <- sort(table(data$day)/length(data$day), decreasing= T)
   cum.freq <- as.numeric(freq.ord[1])
@@ -109,6 +121,7 @@ test <- hdr(data = prova)
 
 str(test)
 
+# Prova su porzione di dataset
 library(plyr)
 startTimer()
 test <- dlply(droplevels(dim.temp[1:40000, ]), "id", function(x) hdr(data = x))
@@ -117,8 +130,13 @@ stopTimer()
 # save(test, file="intervalliSubset.RData")
 
 str(test)
+# I documenti a cui è associata una densità di probabilità pari a 1 sono quelli 
+# per i quali è presente una sola data
 
-# Eventualmente 
+#--------------------------------------------#
+# Da non eseguire: INIZIO
+#--------------------------------------------#
+# Eventualmente si può far girare in parallelo
 library(doParallel)
 # registerDoParallel()
 # si può scegliere il numero di copie di R che girano in parallelo con makeCluster
@@ -134,12 +152,17 @@ test <- dlply(dim.temp, "id", function(x) hdr(data = x), .parallel = T)
 stopTimer()
 # 53 minuti circa (oggetto list prodotto salvato in 
 # /home/sally/Documents/Parser_R_txt/intervalliSubset.RData)
+#--------------------------------------------#
+# Da non eseguire: FINE
+#--------------------------------------------#
+
 #----------------------------------------------------------------------------#
-# modifiche per applicazione (calcolo solo fino al 0.1 per "risparmiare tempo"
-# ordinando in maniera crescente
-check <- date
-date
-check
+# Funzione migliorata
+# modifiche per applicazione: ordinando in maniera crescente calcolo solo fino al 0.1 
+# (1 - densità voluta) per risparmiare tempo, e poi tolgo le date associate a bassa
+# probabilità
+# 
+
 hdr1 <- function(data)
 {
   prob = 0.08
@@ -158,11 +181,9 @@ hdr1 <- function(data)
   list(lower = estremi.lo, upper = estremi.up, prob = 1-sum(cum.freq))
 }
 
-prova <- droplevels(dim.temp[which(dim.temp$id == "WSJ870113-0151"), ])
 tb <- table(prova$day)/length(prova$day)
 plot(tb, type = "h")
 prova
-
 hdr1(prova)
 
 library(plyr)
@@ -170,8 +191,7 @@ startTimer()
 test1 <- dlply(droplevels(dim.temp[1:40000, ]), "id", function(x) hdr1(data = x))
 stopTimer()
 # [1] "Tempo trascorso:  706 milli"
-# I warning sono dovuti a quei documenti che hanno solo una data
-# dovrebbero essere 79 in tutto il dataset
+# I warning sono dovuti a quei documenti che hanno solo una data (79 in tutto il subset)
 
 library(plyr)
 startTimer()
@@ -180,3 +200,4 @@ stopTimer()
 # [1] "Tempo trascorso:  1 m 30 s 60651 milli"
 ?options
 str(test1)
+
