@@ -165,7 +165,7 @@ stopTimer()
 
 hdr1 <- function(data)
 {
-  prob = 0.08
+  prob = 0.1
   freq.ord <- sort(table(data$day)/length(data$day), decreasing= F)
   cum.freq <- as.numeric(freq.ord[1])
   while(sum(cum.freq) < prob)
@@ -198,6 +198,5 @@ startTimer()
 test1 <- dlply(dim.temp, "id", function(x) hdr1(data = x))
 stopTimer()
 # [1] "Tempo trascorso:  1 m 30 s 60651 milli"
-?options
 str(test1)
 
