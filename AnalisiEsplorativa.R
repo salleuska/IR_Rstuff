@@ -23,6 +23,7 @@ check.valori.undefined(data.originali)
 
 # Su tutti i dati
 data <- data.originali
+# DA QUI SI PUÒ SALTARE A RIGA 87 PER IL CHECK DEI DOCUMENTI NON ESPANSI
 #-----------------------------------------------------#
 # libreria che dovrebbe gestire grandi dataset con più facilità
 # install.packages("data.table")
@@ -83,9 +84,14 @@ head(prop.table(type.per.id, margin = 1))
 
 summary(data$id)[1:10]
 head(table(data$id, data$type))
-
+#------------------------------------------------------#
 # Documenti che contengono espressioni di tipo DATE
 date <- droplevels(data[which(data$type == "DATE"), ])
+
+date <- droplevels(data[which(data$type == "DATE"), ])
+# documenti con almeno una data
+length(levels(date$id))
+
 str(date)
 espr.per.doc <- summary(data$id, maxsum= Inf)
 summary(espr.per.doc)
@@ -99,12 +105,42 @@ head(sort(espr.per.doc, decreasing =T), n= 40)
 
 # Numero documenti con più di 200 date
 length(espr.per.doc[espr.per.doc > 200])
+# Numero documenti con 100-200 date
 length(espr.per.doc[((espr.per.doc < 200)&(espr.per.doc > 100))])
+# Numero documenti con 50-100 date
 length(espr.per.doc[((espr.per.doc < 100)&(espr.per.doc > 50))])
 
+# Numero documenti con 1 sola data (inutili per espansione)
+length(espr.per.doc[espr.per.doc < 2])
 # distribuzione del numero di date nei documenti
 summary(espr.per.doc)
+#------------------------------------------------------------------#
+# Check documenti per esplosione date
+esplosione <- droplevels(date[which(date$gran != "ref"), ])
+str(esplosione)
+length(levels(esplosione$id))
 
+esplosione <- droplevels(esplosione[which(esplosione$gran != "undefined"), ])
+# Numero di documenti che dovrebbero essere esplosi
+length(levels(esplosione$id))
+# Nota : da bash sono 106.582
+# Confronto 
+check <- levels(esplosione$id)
+
+setwd("/home/sally/Documents/Dimensione_temporale_divisi")
+# Recupero gli ID dei documenti prodotti dall'espansione
+divisi <- list.files()
+head(divisi)
+divisi <- sub("_txt", "", divisi)
+divisi <-as.factor(divisi)
+str(divisi)
+
+non.espansi <-check[-which(divisi %in% check)]
+non.espansi
+
+data[which(data$id %in% non.espansi), ]
+date[which(date$id %in% non.espansi), ]
+#-------------------------------------------------------------------#
 # Documenti che non contengono nemmeno un'espressione di tipo DATE
 length(which((data$id %in% levels(date$id)))) 
 length(levels(date$id))

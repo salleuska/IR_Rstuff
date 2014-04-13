@@ -39,7 +39,7 @@ abline(v= int[2], col = 2)
 length(unique(dim.temp$id))
 #-------------------------------------------------------------------------#
 # Prova con primo documento
-prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[1]), ]
+prova <- dim.temp[which(dim.temp$id ==levels(dim.temp$id)[7]), ]
 prova <- droplevels(prova)
 summary(prova$day)
 # Nota: si può calcolare l'ampiezza di un intervallo di tempo
@@ -47,9 +47,12 @@ max(prova$day) - min(prova$day)
 
 # Distribuzione
 hist(prova$day, breaks = "day")
-
+lines(density(as.numeric(prova$day)), col = 2)
 # install.packages("coda") 
 library(coda)
+
+
+
 hist(as.mcmc(prova$day), breaks = 1000, prob = T)
 # Calcolo dell'intervallo HPD
 int <- HPDinterval(as.mcmc(prova$day), prob=0.9)
