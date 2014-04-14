@@ -23,7 +23,7 @@ check.valori.undefined(data.originali)
 
 # Su tutti i dati
 data <- data.originali
-# DA QUI SI PUÒ SALTARE A RIGA 87 PER IL CHECK DEI DOCUMENTI NON ESPANSI
+# DA QUI SI PUÒ SALTARE A RIGA 88 PER IL CHECK DEI DOCUMENTI NON ESPANSI
 #-----------------------------------------------------#
 # libreria che dovrebbe gestire grandi dataset con più facilità
 # install.packages("data.table")
@@ -138,8 +138,11 @@ str(divisi)
 non.espansi <-check[-which(divisi %in% check)]
 non.espansi
 
-data[which(data$id %in% non.espansi), ]
-date[which(date$id %in% non.espansi), ]
+to.check <- data[which(data$id %in% non.espansi), ]
+setwd(config[3])
+write.table(to.check, file = "data_to_split.txt", sep="\t",
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
+# Elaborati : OK
 #-------------------------------------------------------------------#
 # Documenti che non contengono nemmeno un'espressione di tipo DATE
 length(which((data$id %in% levels(date$id)))) 

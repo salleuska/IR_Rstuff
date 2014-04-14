@@ -90,10 +90,9 @@ data <- ricarica.dataset("heidel_pulizia.def.txt")
 # subset.data per usare solo un sottonsieme 
 # generato da n documenti
 data <- subset.data(data)
-# data <- subset.data(data,subset= T, ndoc = 1000)
+# data <- subset.data(data,subset= T, ndoc = 10000)
 
 # salva dataset per splitter
 setwd(config[3])
 write.table(data, file = "data_to_split.txt", sep="\t",
             row.names = FALSE, col.names = FALSE, quote = FALSE)
-
