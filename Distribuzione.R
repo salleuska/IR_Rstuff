@@ -32,14 +32,18 @@ intervalli <- function(fileName)
 {
   data <- read.delim(fileName, header = F, col.names = c("id", "day"))
   data$day <- as.Date(data$day)
+  # il calcolo viene eseguito solo per quei documenti con più di una data (per quelli ritorna NULL)
   if(dim(data)[1] > 1) hdr(data)
+  
 }
 #--------------------------------------------------------------------------#
-setwd(paste(config[2], "DimSplitted", sep = ""))
+# setwd(paste(config[2], "DimSplitted", sep = ""))
 docs <- list.files()
 docs <- as.list(list.files())
 names(docs) <- sub("_txt", "", docs)
 # calcolo
+# la funzione llply applica una funzione ad una lista di oggetti e restituisce i risultati
+# in una lista 
 library(plyr)
 results <- llply(.data = docs, .fun = function(x) intervalli(as.character(x) ))
 stopTimer()
