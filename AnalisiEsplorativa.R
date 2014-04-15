@@ -88,7 +88,6 @@ head(table(data$id, data$type))
 # Documenti che contengono espressioni di tipo DATE
 date <- droplevels(data[which(data$type == "DATE"), ])
 
-date <- droplevels(data[which(data$type == "DATE"), ])
 # documenti con almeno una data
 length(levels(date$id))
 

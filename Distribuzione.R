@@ -4,55 +4,44 @@
 #------------------------------------------------------------------#
 # source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
 # config <- set.config(user = "alan")
-# source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
-# source("configurazione.R")
+source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+config <- set.config(user = "sally")
 config
 #------------------------------------------------------------------#
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 
-startTimer()
-
-# leggo esplosione temporale
-setwd(config["txtpath"])
-data <- read.table("heidel_dimensioneTemporale.txt", header=F)
-data.read <- data
-data <- data.read
-names(data) <- c("id", "date")
-levels(data$id)
-data <- subset.data(data=data,  subset=T, ndoc=10)
-levels(data$id)
-levels(data$date)
-summary(data)
-
-
-data$date <- as.Date(data$date, '%Y-%m-%d')
-
-
-plot.document <- function(n)
+hdr <- function(data)
 {
-  prova <- data[which(data$id == levels(data$id)[n]), ]
+  prob = 0.1
+  freq.ord <- sort(table(data$day)/length(data$day), decreasing= F)
+  cum.freq <- as.numeric(freq.ord[1])
+  while(sum(cum.freq) < prob)
+  {
+    i <- length(cum.freq)
+    cum.freq <- c(cum.freq, freq.ord[i+ 1])
+    
+  }
+  date <- sort(as.Date(names(freq.ord)[-c(1:length(cum.freq))]))
+  estremi.lo <- c(min(date), date[which(diff.Date(date) != 1) + 1])
+  estremi.up <- c(date[which(diff.Date(date) !=1)], max(date))
   
-  library(ggplot2)
-  library(scales)
-  freqs <- aggregate(prova$date, by=list(prova$date), FUN=length)
-  freqs$names <- as.Date(freqs$Group.1, format="%Y-%m-%d")
-  
-  cat(paste("Dal", min(prova$date), "al", max(prova$date)))
-  
-  ggplot(freqs, aes(x=names, y=x)) + geom_bar(stat="identity") +
-    scale_x_date(breaks="1 month", labels=date_format("%Y-%b"),
-                 limits=c(as.Date(min(prova$date)),as.Date(max(prova$date)))) +
-    ylab("Frequency") + xlab("Year and Month")
-  
-  
-  
+  list(lower = estremi.lo, upper = estremi.up, prob = 1-sum(cum.freq))
 }
-
-plot.document(10)
-
-#
-
-
-
-
+#--------------------------------------------------------------------------#
+intervalli <- function(fileName)
+{
+  data <- read.delim(fileName, header = F, col.names = c("id", "day"))
+  data$day <- as.Date(data$day)
+  if(dim(data)[1] > 1) hdr(data)
+}
+#--------------------------------------------------------------------------#
+setwd(paste(config[2], "DimSplitted", sep = ""))
+docs <- list.files()
+docs <- as.list(list.files())
+names(docs) <- sub("_txt", "", docs)
+# calcolo
+library(plyr)
+results <- llply(.data = docs, .fun = function(x) intervalli(as.character(x) ))
 stopTimer()
+setwd(config[2])
+save(results, file = "results.RData")
