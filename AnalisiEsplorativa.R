@@ -61,7 +61,6 @@ plot(espr.per.doc, type = "l")
 # data[, sum(summary(id, maxsum = Inf) == 1)]
 # problema: numero minimo di espressioni per poter classificare?
 length(which(espr.per.doc < 2 ))
-length(which(espr.per.doc < 2 ))
 length(which(espr.per.doc >= 5)) # si dovrà decidere una soglia
 
 # type per documento
@@ -69,7 +68,7 @@ length(which(espr.per.doc >= 5)) # si dovrà decidere una soglia
 type.per.id <- table(data[, list(id, type)])
 str(type.per.id)
 
-type.per.id[1:length(type.per.id)]
+type.per.id[1:10, 1:4]
 
 plot(type.per.id[, "DATE"], type = "l")
 plot(type.per.id[, "DURATION"], type = "l")

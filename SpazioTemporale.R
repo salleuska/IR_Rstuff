@@ -2,25 +2,24 @@
 # non ho trovato niente di meglio (o meglio non volevo perderci troppo tempo)
 # NOTA: getwd() restituisce la working directory corrente
 #------------------------------------------------------------------#
-source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
-config <- set.config(user = "alan")
-#source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
-#config <- set.config(user = "sally")
-#config
+# source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+# config <- set.config(user = "alan")
+ source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+ config <- set.config(user = "sally")
+ config
 #------------------------------------------------------------------#
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 
 #--------------------------------------------------------------------------#
-setwd(config[3])
-data <- ricarica.dataset("heidel_pulizia.def.txt")
-
+ setwd(config[2])
+ data <- ricarica.dataset("heidel_pulizia.def.txt")
+ 
 # selezionare subset = T e impostare ndoc = n in 
 # subset.data per usare solo un sottonsieme 
 # generato da n documenti
-#data <- subset.data(data)
+# data <- subset.data(data)
 data <- subset.data(data,subset= T, ndoc = 10000)
 
-#set.seed(1234) #fissa il numero di partenza per il sample (in modo da poter riestrarre "casualmente" gli stessi dati)
 doc <- data[which(data$id %in% sample(levels(data$id), 1)),]
 doc <- droplevels(doc)
 doc
