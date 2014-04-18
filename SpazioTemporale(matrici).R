@@ -61,7 +61,17 @@ max.type <- as.data.table(max.type)
 setkey(max.type, id, type)
 data.max <- merge(data, max.type)
 data.max[c(1:50), ]
+#----------------------------------------------------------------#
+# Altra prova considerando frequenze maggiori di 0.8 (DA FINIRE)
+# se in un certo documento un tipo di espressione temporale ha una 
+# frequenze maggiore di 0.8 classifico solo in base a quella 
+prova <- apply(tab, 1 , function(x) x > 0.8)
+str(prova)
+prova[, 1:50 ]
+colnames(tab)[prova[1:50]]
+tab[1:50, ]
 
+#-------------------------------------------------------------------------------------#
 # Documenti classificabili per DATE
 data.DATE <- droplevels(data.max[type =="DATE", ])
 str(data.DATE)
