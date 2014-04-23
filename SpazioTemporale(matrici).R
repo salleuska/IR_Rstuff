@@ -19,6 +19,14 @@ data <- data.table(data)
 setkey(data, id, type)
 tables()
 
+#-----------------------------------#
+# Creazione dataframe classificazione (id doc + classe) da "riempire"
+classificazione <- data.frame(cbind(levels(data$id), NA))
+colnames(classificazione) <- c("id", "class")
+# Bisogna decidere i livelli
+classificazione$class <- factor(classificazione$class, levels= c("past", "present", "future", "day", "days", "month", "months", "year", "years", "undef"))
+str(classificazione)
+#-------------------------------------#
 # Considerando frequenze maggiori di una certa soglia c (e.g. c = 0.75)
 # se in un certo documento un tipo di espressione temporale ha una 
 # frequenze maggiore di 0.75 classifico solo in base a quella 
@@ -29,6 +37,7 @@ tab <- as.data.frame(prop.table(table(data[, list(id, type)]), margin = 1))
 
 # seleziono i documenti che hanno un tipo di espressione temporale con frequenze maggiore 
 # del 75%
+tab <- as.data.frame(tab)
 c = 0.75
 class.c <- droplevels(tab[which(tab$Freq > c), ])
 str(class.c)
@@ -47,18 +56,7 @@ data[which(data$id %in% class.c[which(class.c$type == "SET"), ]$id), ]
 # Documenti con prevalenza espressioni tipo DATE
 dim(class.c[which(class.c$type == "DATE"), ])[1]
 
-# classificazione
-classificazione <- data.frame(cbind(levels(data$id), NA))
-colnames(classificazione) <- c("id", "class")
-# Bisogna decidere i livelli
-classificazione$class <- factor(classificazione$class, levels= c("past", "present", "future", "day", "days", "month", "months", "year", "years", "undef"))
-str(classificazione)
-
-# classificazione[which(classificazione$id %in% class.c[which(class.c$type == "TIME"), ]$id), ]$class <- "time"
-# classificazione[which(classificazione$id %in% class.c[which(class.c$type == "DURATION"), ]$id), ]$class <- "duration"
-# classificazione[which(classificazione$id %in% class.c[which(class.c$type == "SET"), ]$id), ]$class <- "set"
-
-# Documenti classificabili tramite DATE
+# Considero i documenti classificabili tramite DATE
 data.DATE <- droplevels(data[which(data$id %in% class.c[which(class.c$type == "DATE"), ]$id), ])
 
 str(data.DATE)
@@ -105,7 +103,6 @@ classificazione[which(classificazione$id %in%
 # rimanenti 
 # length(levels(tab.ref$id)) - length(levels(class.ref.c$id))
 
-ref.toclass <- droplevels(solo.REF[-which(solo.REF$id %in% levels(class.ref.c$id)), ])
 str(ref.toclass)
 
 prop.table(table(ref.toclass[, list(id, value)]), margin = 1)
@@ -116,69 +113,29 @@ to.class <- droplevels(tab[which(!(tab$id %in% levels(class.c$id))), ])
 # Numero 
 length(levels(to.class$id))
 #-------------------------------------------------------------------------------------#
+# CONSIDERAZIONI (vedi in drive: AnalisiTemporale)
+
+prop.table(table(data[, list(id, type)]), margin = 1)[1:100, ]
+
+es <- droplevels(data[which(data$id == "WSJ861201-0003"), ])
+es
+
+prop.table(table(es[which(es$type == "DATE"), list(id, gran)]), margin = 1)
+
+load("/home/sally/Documents/results.RData")
+results["WSJ861201-0003"]
+results[["WSJ861201-0003"]]$upper - results[["WSJ861201-0003"]]$lower
+
+es <- droplevels(data[which(data$id == "WSJ861201-0007"), ])
+es
+
+es[which(es$type == "DATE"), ]
+prop.table(table(es[which(es$type == "DATE"), list(id, gran)]), margin = 1)
+
+
+es[which(es$gran == "ref"), ]
+prop.table(table(es[which(es$gran == "ref"), list(id, )]), margin = 1)
+
+results["WSJ861201-0007"]
+results[["WSJ861201-0007"]]$upper - results[["WSJ861201-0007"]]$lower
 #-------------------------------------------------------------------------------------#
-# Prova iniziale con le frequenze massime
-
-# non classifico documenti con un numero di espressioni minore di ? DA VALUTARE
-# espr.per.doc <- data[, summary(id, maxsum = Inf)]
-# length(which(espr.per.doc < 2 ))
-# data <- droplevels(data[-which(id %in% names(espr.per.doc[which(espr.per.doc < 2 )])), ])
-
-#------------------------------------------#
-# RAW: Calcolo frequenze per tipo
-# 
-# type.per.id <- table(data[, list(id, type)])
-# head(type.per.id)
-# str(type.per.id)
-
-# head(prop.table(type.per.id, margin = 1))
-# tab <- prop.table(type.per.id, margin = 1)
-
-# prova <- tab[1:100, 1:4]
-# colnames(prova)[apply(prova,1,which.max)]
-#------------------------------------------#
-# Calcolo tabella frequenze per documento
-tab <- prop.table(table(data[, list(id, type)]), margin = 1)
-tab[1:100, 1:4]
-# PROBLEMA: cosa fare con i documenti che hanno frequenze uguali(o poca differenza)
-# per più di un tipo di espressione? Ad esempio
-tab[c("WSJ861201-0055","WSJ861201-0071"), ]
-
-
-# Calcolo type con frequenza massima e ritorno id documento + type
-max.type <- cbind(rownames(tab), colnames(tab)[apply(tab,1,which.max)])
-colnames(max.type) = c("id", "type")
-max.type[1:50, ]
-
-
-# Selezione dei valori corrispondenti al tipo di frequenza massima
-# e.g. siccome ho "WSJ861201-0001" "DATE"
-# per il documento "WSJ861201-0001" tengo tutte le righe con tipo"DATE"
-max.type <- as.data.table(max.type)
-
-# str(max.type)
-setkey(max.type, id, type)
-data.max <- merge(data, max.type)
-data.max[c(1:50), ]
-# Documenti classificabili per DATE
-data.DATE <- droplevels(data.max[type =="DATE", ])
-str(data.DATE)
-
-tab.gran <- prop.table(table(data.DATE[, list(id, gran)]), margin = 1)
-tab.gran
-tab.gran[1:10, "ref"]
-
-# Documente con espressioni di tipo DATE con solo granularità di tipo ref
-soloREF <- tab.gran[which(tab.gran[, "ref"] == 1), ]
-
-data.soloREF <- droplevels(data.DATE[id %in% rownames(soloREF), ])
-str(data.soloREF)
-data.soloREF[1:100, ]
-
-# FARE UNA FUNZIONE PER IL CALCOLO DELLE TABELLE
-tab.ref <- prop.table(table(data.soloREF[, list(id, value)]), margin = 1)
-tab.ref
-
-max.ref <- cbind(rownames(tab.ref), colnames(tab.ref)[apply(tab.ref,1,which.max)])
-colnames(max.ref) = c("id", "class")
-max.ref[1:50, ]
