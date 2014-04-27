@@ -32,12 +32,14 @@ intervalli <- function(fileName)
 {
   data <- read.delim(fileName, header = F, col.names = c("id", "day"))
   data$day <- as.Date(data$day)
+  cat(fileName, "\n")
   # il calcolo viene eseguito solo per quei documenti con più di una data (per quelli ritorna NULL)
   if(dim(data)[1] > 1) hdr(data)
   
 }
 #--------------------------------------------------------------------------#
 # setwd(paste(config[2], "DimSplitted", sep = ""))
+# setwd("/home/sally/Documents/Dimensione_temporale_divisi")
 docs <- list.files()
 docs <- as.list(list.files())
 names(docs) <- sub("_txt", "", docs)
@@ -48,4 +50,4 @@ library(plyr)
 results <- llply(.data = docs, .fun = function(x) intervalli(as.character(x) ))
 stopTimer()
 setwd(config[2])
-save(results, file = "results.RData")
+save(results, file = "results80.RData")

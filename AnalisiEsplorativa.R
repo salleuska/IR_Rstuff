@@ -133,8 +133,10 @@ divisi <- sub("_txt", "", divisi)
 divisi <-as.factor(divisi)
 str(divisi)
 
-non.espansi <-check[-which(divisi %in% check)]
+
+non.espansi <- setdiff(check, divisi)
 non.espansi
+data[which(data$id %in% non.espansi), ]
 
 to.check <- data[which(data$id %in% non.espansi), ]
 setwd(config[3])

@@ -523,9 +523,45 @@ subset.data <- function(data, subset = FALSE, ndoc = 0)
   data  
 }
 
+#-----------------------------------------------------------------#
+# Scrittura dataset in diversi file
+write.files <- function(data)
+{
+  file.name = paste(data$id[1],"_",data$creation[1], ".txt", sep = "") 
+  subset.to.write <- data[, c("type", "value", "gran")]
+  write.table(subset.to.write, file = file.name, sep = " ",
+              row.names = FALSE, col.names = FALSE, quote = FALSE)
+}
 
-
-
+#--------------------------------------------------------------------------#
+# Calcolo regioni ad alta densità
+hdr <- function(data)
+{
+  prob = 0.1
+  freq.ord <- sort(table(data$day)/length(data$day), decreasing= F)
+  cum.freq <- as.numeric(freq.ord[1])
+  while(sum(cum.freq) < prob)
+  {
+    i <- length(cum.freq)
+    cum.freq <- c(cum.freq, freq.ord[i+ 1])
+    
+  }
+  date <- sort(as.Date(names(freq.ord)[-c(1:length(cum.freq))]))
+  estremi.lo <- c(min(date), date[which(diff.Date(date) != 1) + 1])
+  estremi.up <- c(date[which(diff.Date(date) !=1)], max(date))
+  
+  list(lower = estremi.lo, upper = estremi.up, prob = 1-sum(cum.freq))
+}
+#--------------------------------------------------------------------------#
+intervalli <- function(fileName)
+{
+  data <- read.delim(fileName, header = F, col.names = c("id", "day"))
+  data$day <- as.Date(data$day)
+  cat(fileName, "\n")
+  # il calcolo viene eseguito solo per quei documenti con più di una data (per quelli ritorna NULL)
+  if(dim(data)[1] > 1) hdr(data)
+  
+}
 
 
 

@@ -40,9 +40,6 @@ classificazione[which(classificazione$class == "undef"),]
 
 # Per gli altri? DA VEDERE (considerare anche la possibilità di calcolare frequenze pesate)
 #-------------------------------------------------------------------------------------#
-date <- droplevels(data[which(data$id %in% levels(droplevels(data[which(data$type == "DATE"), ])$id)), ])
-str(date)
-
 # PROVA Calcolo tabella frequenza pesate
 # pesi
 w <- c(2, 1, 1, 0)
@@ -68,8 +65,9 @@ prop.table.weighted <- function(table, w)
 
 prop.table.weighted(prova2, w = w)
 
-
-#
+#--------------------------------------------------#
 tab <- prop.table.weighted(table(date[, list(id, type)]), w)
 str(tab)
 tab[1:100, ]
+results80
+Tempo trascorso:  477 m 57 s 28620282 milli"
