@@ -1,9 +1,9 @@
 #------------------------------------------------------------------#
-# source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
-# config <- set.config(user = "alan")
-source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
-config <- set.config(user = "sally")
-config
+source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+config <- set.config(user = "alan")
+#source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+#config <- set.config(user = "sally")
+#config
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 #------------------------------------------------------------------#
 # Funzioni utili
@@ -18,7 +18,7 @@ list.to.data.frame <- function(lista, colnames = NULL)
 }
 #----------------------------------------------------------#
 # Lettura dataset pulito
-setwd(config[2])
+setwd(config[3])
 data <- ricarica.dataset("heidel_pulizia.def.txt")
 library(data.table) # libreria che gestisce più velocemente grandi moli di dati
 # implementa alcuni aspetti delle basi di dati

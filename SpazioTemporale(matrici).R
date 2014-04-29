@@ -1,13 +1,13 @@
 #------------------------------------------------------------------#
-# source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
-# config <- set.config(user = "alan")
-source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
-config <- set.config(user = "sally")
-config
+source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+config <- set.config(user = "alan")
+#source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+#config <- set.config(user = "sally")
+#config
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 #------------------------------------------------------------------#
 # Lettura dataset pulito
-setwd(config[2])
+setwd(config[3])
 data <- ricarica.dataset("heidel_pulizia.def.txt")
 library(data.table) # libreria che gestisce più velocemente grandi moli di dati
                     # implementa alcuni aspetti delle basi di dati
@@ -63,7 +63,7 @@ str(data.DATE)
 # classifico i soli Ref
 # tabella frequenze
 tab.gran <- as.data.frame(prop.table(table(data.DATE[, list(id, gran)]), margin = 1))
-tab.gran[1:10]
+tab.gran[1:10,]
 # estrazione degli id dei documenti con una frequenza di espressioni di tipo ref maggiori di 
 # c = 0.75
 class.gran.c <- droplevels(tab.gran[which((tab.gran$Freq > c)&(tab.gran$gran == "ref")), ])
@@ -121,7 +121,8 @@ es
 
 prop.table(table(es[which(es$type == "DATE"), list(id, gran)]), margin = 1)
 
-load("/home/sally/Documents/results.RData")
+#load("/home/sally/Documents/results.RData")
+load("results.RData")
 results["WSJ861201-0003"]
 results[["WSJ861201-0003"]]$upper - results[["WSJ861201-0003"]]$lower
 
@@ -133,8 +134,9 @@ prop.table(table(es[which(es$type == "DATE"), list(id, gran)]), margin = 1)
 
 
 es[which(es$gran == "ref"), ]
-prop.table(table(es[which(es$gran == "ref"), list(id, )]), margin = 1)
+prop.table(table(es[which(es$gran == "ref"), list(id, gran)]), margin = 1)
 
 results["WSJ861201-0007"]
 results[["WSJ861201-0007"]]$upper - results[["WSJ861201-0007"]]$lower
 #-------------------------------------------------------------------------------------#
+
