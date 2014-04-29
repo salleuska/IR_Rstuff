@@ -103,8 +103,8 @@ classificazione[which(classificazione$id %in%
 # rimanenti 
 # length(levels(tab.ref$id)) - length(levels(class.ref.c$id))
 
+ref.toclass <- data.table(droplevels(tab.ref[which(tab.ref$id %in% setdiff(levels(tab.ref$id), levels(class.ref.c$id))), ]))
 str(ref.toclass)
-
 prop.table(table(ref.toclass[, list(id, value)]), margin = 1)
 
 # Documenti rimasti (espressioni "miste")

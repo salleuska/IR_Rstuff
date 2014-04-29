@@ -142,7 +142,6 @@ to.check <- data[which(data$id %in% non.espansi), ]
 setwd(config[3])
 write.table(to.check, file = "data_to_split.txt", sep="\t",
             row.names = FALSE, col.names = FALSE, quote = FALSE)
-# Elaborati : OK
 #-------------------------------------------------------------------#
 # Documenti che non contengono nemmeno un'espressione di tipo DATE
 length(which((data$id %in% levels(date$id)))) 
