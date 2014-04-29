@@ -9,7 +9,6 @@ source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 # Lettura dataset pulito
 setwd(config[2])
 data <- ricarica.dataset("heidel_pulizia.def.txt")
-
 library(data.table) # libreria che gestisce più velocemente grandi moli di dati
                     # implementa alcuni aspetti delle basi di dati
 # (quick)info libreria 
