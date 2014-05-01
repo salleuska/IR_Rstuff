@@ -1,9 +1,9 @@
 #------------------------------------------------------------------#
-source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
-config <- set.config(user = "alan")
-#source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
-#config <- set.config(user = "sally")
-#config
+# source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+# config <- set.config(user = "alan")
+source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+config <- set.config(user = "sally")
+config
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 #------------------------------------------------------------------#
 # Funzioni utili
@@ -332,10 +332,6 @@ classificazione[which(classificazione$id %in% names(class.DURATION$id)),]$score 
 
 head(classificazione)
 str(classificazione)
-levels(classificazione)
-summary(classificazione, maxsum=15)
-
-sort(summary(classificazione$class, maxsum=15), decreasing=T)
-
+levels(classificazione$class)
 
 
