@@ -1,8 +1,8 @@
 #------------------------------------------------------------------#
-source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
-config <- set.config(user = "alan")
-#source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
-#config <- set.config(user = "sally")
+# source("/home/alan/Documents/GIT/Rstuff/configurazione.R")
+# config <- set.config(user = "alan")
+source("/home/sally/altracartella/IR_Rstuff/configurazione.R")
+config <- set.config(user = "sally")
 #config
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 #------------------------------------------------------------------#
@@ -18,7 +18,7 @@ list.to.data.frame <- function(lista, colnames = NULL)
 }
 #----------------------------------------------------------#
 # Lettura dataset pulito
-setwd(config[3])
+setwd(config[2])
 data <- ricarica.dataset("heidel_pulizia.def.txt")
 library(data.table) # libreria che gestisce più velocemente grandi moli di dati
 # implementa alcuni aspetti delle basi di dati
@@ -237,31 +237,20 @@ class.FUTURE <- droplevels(ref.data[which(ref.data$ref == "FUTURE_REF"), ])
 
 dim(class.PAST) + dim(class.PRESENT) + dim(class.FUTURE)
 
+levels(class.PAST$id)
 
 # class.* sono data.frame di liste
 # classificazione[.] <- "past" va in errore
 # è necessario ricostruire i data.frame/levels
 
-class.PAST$id <- factor(class.PAST$id, levels=as.list(class.PAST$id))
-class.PAST$ref <- factor(class.PAST$ref, levels=as.list(unique(class.PAST$ref)))
-class.PAST$Freq <- factor(class.PAST$Freq, levels=as.list(unique(class.PAST$Freq)))
-
-class.PRESENT$id <- factor(class.PRESENT$id, levels=as.list(class.PRESENT$id))
-class.PRESENT$ref <- factor(class.PRESENT$ref, levels=as.list(unique(class.PRESENT$ref)))
-class.PRESENT$Freq <- factor(class.PRESENT$Freq, levels=as.list(unique(class.PRESENT$Freq)))
-
-class.FUTURE$id <- factor(class.FUTURE$id, levels=as.list(class.FUTURE$id))
-class.FUTURE$ref <- factor(class.FUTURE$ref, levels=as.list(unique(class.FUTURE$ref)))
-class.FUTURE$Freq <- factor(class.FUTURE$Freq, levels=as.list(unique(class.FUTURE$Freq)))
-
 # Score da calcolare (tenere in considerazione le frequenze pesate associate a DATE)
-classificazione[which(classificazione$id %in% levels(class.PAST$id)),]$class <- "past"
+classificazione[which(classificazione$id %in% names(class.PAST$id)),]$class <- "past"
 # classificazione[which(classificazione$id %in% levels(class.PAST)),]$score <- 
 
-classificazione[which(classificazione$id %in% levels(class.PRESENT$id)),]$class <- "present"
+classificazione[which(classificazione$id %in% names(class.PRESENT$id)),]$class <- "present"
 # classificazione[which(classificazione$id %in% names(class.PRESENT)),]$score
 
-classificazione[which(classificazione$id %in% levels(class.FUTURE$id)),]$class <- "future"
+classificazione[which(classificazione$id %in% names(class.FUTURE$id)),]$class <- "future"
 # classificazione[which(classificazione$id %in% levels(class.FUTURE$id)),]$score
 
 levels(classificazione$class)
@@ -343,7 +332,7 @@ classificazione[which(classificazione$id %in% names(class.DURATION$id)),]$score 
 
 head(classificazione)
 str(classificazione)
-levels(classificazione)
+levels(classificazione$)
 summary(classificazione)
 
 
