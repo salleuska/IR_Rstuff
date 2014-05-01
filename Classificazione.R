@@ -237,27 +237,22 @@ class.FUTURE <- droplevels(ref.data[which(ref.data$ref == "FUTURE_REF"), ])
 
 dim(class.PAST) + dim(class.PRESENT) + dim(class.FUTURE)
 
-alan.cp <- ref.data[which(ref.data$ref == "PAST_REF"), ]
 
+# class.* sono data.frame di liste
+# classificazione[.] <- "past" va in errore
+# è necessario ricostruire i data.frame/levels
 
-alan.cp
-head(alan.cp)
-summary(alan.cp)
-names(alan.cp)
-levels(alan.cp)
-str(alan.cp)
+class.PAST$id <- factor(class.PAST$id, levels=as.list(class.PAST$id))
+class.PAST$ref <- factor(class.PAST$ref, levels=as.list(unique(class.PAST$ref)))
+class.PAST$Freq <- factor(class.PAST$Freq, levels=as.list(unique(class.PAST$Freq)))
 
+class.PRESENT$id <- factor(class.PRESENT$id, levels=as.list(class.PRESENT$id))
+class.PRESENT$ref <- factor(class.PRESENT$ref, levels=as.list(unique(class.PRESENT$ref)))
+class.PRESENT$Freq <- factor(class.PRESENT$Freq, levels=as.list(unique(class.PRESENT$Freq)))
 
-
-
-class.PAST
-head(class.PAST)
-summary(class.PAST)
-levels(class.PAST)
-str(class.PAST)
-
-
-
+class.FUTURE$id <- factor(class.FUTURE$id, levels=as.list(class.FUTURE$id))
+class.FUTURE$ref <- factor(class.FUTURE$ref, levels=as.list(unique(class.FUTURE$ref)))
+class.FUTURE$Freq <- factor(class.FUTURE$Freq, levels=as.list(unique(class.FUTURE$Freq)))
 
 # Score da calcolare (tenere in considerazione le frequenze pesate associate a DATE)
 classificazione[which(classificazione$id %in% levels(class.PAST$id)),]$class <- "past"
