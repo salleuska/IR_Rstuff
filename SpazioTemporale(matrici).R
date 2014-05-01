@@ -25,6 +25,7 @@ colnames(classificazione) <- c("id", "class")
 # Bisogna decidere i livelli
 classificazione$class <- factor(classificazione$class, levels= c("past", "present", "future", "day", "days", "month", "months", "year", "years", "undef"))
 str(classificazione)
+head(classificazione)
 #-------------------------------------#
 # Considerando frequenze maggiori di una certa soglia c (e.g. c = 0.75)
 # se in un certo documento un tipo di espressione temporale ha una 
@@ -98,6 +99,16 @@ classificazione[which(classificazione$id %in%
                         unique(class.ref.c[which(class.ref.c$value == "PAST_REF"), ]$id)), ]$class <- "past"
 classificazione[which(classificazione$id %in% 
                         unique(class.ref.c[which(class.ref.c$value == "FUTURE_REF"), ]$id)), ]$class <- "future"
+
+# Verifico stato classificazione attuale
+
+str(classificazione[which(classificazione$class != "NA"), ])
+
+head(classificazione)
+str(classificazione)
+levels(classificazione)
+summary(classificazione)
+
 
 # rimanenti 
 # length(levels(tab.ref$id)) - length(levels(class.ref.c$id))

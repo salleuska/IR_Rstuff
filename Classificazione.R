@@ -46,6 +46,7 @@ str(classificazione)
 # Sottoinsieme delle espressioni relative a documenti con almeno una data
 # (da passare all'espansione)
 date <- droplevels(data[which(data$id %in% levels(droplevels(data[which(data$type == "DATE"), ])$id)), ])
+str(date)
 # documenti che non hanno nemmeno una data
 nodate <- droplevels(data[-which(data$id %in% levels(droplevels(data[which(data$type == "DATE"), ])$id)), ])
 str(nodate)
@@ -236,6 +237,28 @@ class.FUTURE <- droplevels(ref.data[which(ref.data$ref == "FUTURE_REF"), ])
 
 dim(class.PAST) + dim(class.PRESENT) + dim(class.FUTURE)
 
+alan.cp <- ref.data[which(ref.data$ref == "PAST_REF"), ]
+
+
+alan.cp
+head(alan.cp)
+summary(alan.cp)
+names(alan.cp)
+levels(alan.cp)
+str(alan.cp)
+
+
+
+
+class.PAST
+head(class.PAST)
+summary(class.PAST)
+levels(class.PAST)
+str(class.PAST)
+
+
+
+
 # Score da calcolare (tenere in considerazione le frequenze pesate associate a DATE)
 classificazione[which(classificazione$id %in% levels(class.PAST$id)),]$class <- "past"
 # classificazione[which(classificazione$id %in% levels(class.PAST)),]$score <- 
@@ -319,4 +342,14 @@ classificazione[which(classificazione$id %in% names(class.SET$id)),]$score<- cla
 
 classificazione[which(classificazione$id %in% names(class.DURATION$id)),]$class <- "duration"
 classificazione[which(classificazione$id %in% names(class.DURATION$id)),]$score <- class.DURATION$Freq
+
+
+# Verifico stato classificazione attuale
+
+head(classificazione)
+str(classificazione)
+levels(classificazione)
+summary(classificazione)
+
+
 
