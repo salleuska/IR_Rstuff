@@ -169,7 +169,7 @@ str(DATE) # check (ok)  110078 + 361
 
 # PESI
 # day, days, month, months, year, years, undefined = 1
-# ref = 1/3
+# ref = 1/4
 
 w.ref <- c(1, 1, 1, 1, 1/4, 1,1)
 tab.DATE <- prop.table.weighted(table(DATE[, list(id, gran)]), w.ref)
@@ -235,7 +235,7 @@ class.PAST <- droplevels(ref.data[which(ref.data$ref == "PAST_REF"), ])
 class.PRESENT <- droplevels(ref.data[which(ref.data$ref == "PRESENT_REF"), ])
 class.FUTURE <- droplevels(ref.data[which(ref.data$ref == "FUTURE_REF"), ])
 
-dim(class.PAST) + dim(class.PRESENT) + dim(class.FUTURE)
+dim(class.PAST)[1] + dim(class.PRESENT)[1] + dim(class.FUTURE)[1]
 
 levels(class.PAST$id)
 
@@ -243,7 +243,6 @@ levels(class.PAST$id)
 # classificazione[.] <- "past" va in errore
 # è necessario ricostruire i data.frame/levels
 
-# Score da calcolare (tenere in considerazione le frequenze pesate associate a DATE)
 classificazione[which(classificazione$id %in% names(class.PAST$id)),]$class <- "past"
 # classificazione[which(classificazione$id %in% levels(class.PAST)),]$score <- 
 
