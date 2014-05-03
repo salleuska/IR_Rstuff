@@ -10,7 +10,7 @@ config
 #------------------------------------------------------------------#
 source(paste(config[1], "FunzioniAnalisi.R", sep = ""))
 
-load("/home/sally/Documents/results.RData")
+load("/home/sally/Documents/results90.RData")
 
 str(results) # lista di liste
 # lista relativa ad un documento

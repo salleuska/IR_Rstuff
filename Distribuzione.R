@@ -38,8 +38,7 @@ intervalli <- function(fileName)
   
 }
 #--------------------------------------------------------------------------#
-# setwd(paste(config[2], "DimSplitted", sep = ""))
-# setwd("/home/sally/Documents/Dimensione_temporale_divisi")
+setwd(paste(config[3], "DimSplitted", sep = ""))
 docs <- list.files()
 docs <- as.list(list.files())
 names(docs) <- sub("_txt", "", docs)

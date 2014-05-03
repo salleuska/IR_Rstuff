@@ -126,8 +126,11 @@ class.noREF <- droplevels(max.DATE[which(max.DATE$gran == "noref"), ])
 REF <- droplevels(data[which((data$id %in%levels(class.REF$id))&(data$gran == "ref")), ])
 
 tab.ref <- prop.table(table(REF[, list(id, value)]), margin = 1)
+
+#===================================================#
 # Aggiornamento dello score? 
 # tab.DATE <- tab.DATE*class.DATE$Freq
+#===================================================#
 
 max.ref <- max.freq(tab.ref)
 #===================================================#
@@ -152,9 +155,45 @@ classificazione <- tag(classificazione, levels(class.FUTURE$id), "future", class
 stato.classificazione()
 
 # Check NA (Da classificare)
-# length(max.ties) + length(ties.DATE) + length(ties.ref) + dim(class.noREF)[1]
+# length(ties.type) + length(ties.DATE) + length(ties.ref) + dim(class.noREF)[1]
 
 #---------------------------------------------------------------#
 # Classificazione per intervalli
 # parto da levels(class.noREF$id) e recupero gli intervalli associati
 
+load("/home/sally/Documents/results90.RData")
+
+to.class <- results[which(names(results) %in% levels(class.noREF$id))]
+length(to.class)
+
+# Individuo i documenti con un solo DATE di tipo day
+# Sono quelli che hanno un valore NULL per la probabilità
+class.oneDATE <- names(to.class[sapply(sapply(to.class,  "[[", 3), function(x) length(x) == 0)])
+
+prova <- droplevels(data[which(data$id %in% class.oneDATE), ])
+str(prova)
+
+#=================================================#
+# DA definire la penalizzione dello score, in quanto la stima è fatta su un'unico DATE
+# (per ora tengo la frequenza pesata di base)
+score.oneDATE <- class.noREF[which(class.noREF$id %in% class.oneDATE), ]$Freq
+
+#=================================================#
+classificazione <- tag(classificazione, id= class.oneDATE, tag= "day", score = score.oneDATE)
+stato.classificazione()
+
+
+if(length(which(names(to.class) %in% class.oneDATE)) > 0)
+{
+  to.class <- to.class[-which(names(to.class) %in% class.oneDATE)                      ]
+}
+
+# check length(to.class) + length(ties.type) + length(ties.DATE) + length(ties.ref)
+stato.classificazione()
+
+# Continuare da qui
+prova <- to.class[1:100]
+prova[[1]]$interval <- as.numeric(prova[[1]]$upper - prova[[1]]$lower) + 1
+
+# Estendere a tutti
+sapply(prova,  )
