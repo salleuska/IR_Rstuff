@@ -240,19 +240,44 @@ add <- function(list)
 
 library(plyr)
 
-prova <-llply(to.class[1:100], function(x) add(x))
-prova
+# prova <-llply(to.class[1:100], function(x) add(x))
+# prova
 
 startTimer()
 to.class <-llply(to.class, function(x) add(x))
 stopTimer()
+#=============================================================#
+# Aggiunta al dataframe classificazione
+#=============================================================#
 
+tag.da.intervalli <- function(list.element, data)
+{
+  to.rep <- data[which(data$id == names(list.element)), ]  
+  data[which(data$id == names(list.element)), ]$class <- list.element[[1]]$tag[1]
+  if(length(list.element[[1]]$tag) > 1 )
+  {
+    to.rep <-to.rep[rep(seq_len(nrow(to.rep)), each=(length(list.element[[1]]$tag)-1) ),]  
+    to.rep$class <- list.element[[1]]$tag[2:length(list.element[[1]]$tag)]
+  }
+  data <- data.frame(rbind(data, to.rep))
+  data
+}
+str(prova)
+prova <- tag.da.intervalli(list.element = cl, classificazione )
 
-# Aggiungere a classificazione (bisognerà ripetere le righe id)
-l <- sapply(sapply(to.class,  "[[", 5), function(x) length(x))
-summary(l)
+# provare
+insertRow <- function(existingDF, newrow, r) {
+  existingDF <- rbind(existingDF,newrow)
+  existingDF <- existingDF[order(c(1:(nrow(existingDF)-1),r-0.5)),]
+  row.names(existingDF) <- 1:nrow(existingDF)
+  return(existingDF)  
+}
 
+data <- insertRow(data, to.rep, r = 4)
 
+head(prova[sort(prova$id), ])
+
+head(data[sort(data$id), ])
 #=============================================================#
 # Considerazioni (implementate poi nelle funzioni sopra)
 # Se l'intervallo è uno solo la classificazione è facile
