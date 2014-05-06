@@ -165,16 +165,14 @@ load("/home/sally/Documents/results90.RData")
 
 to.class <- results[which(names(results) %in% levels(class.noREF$id))]
 length(to.class)
+#check length(levels(class.noREF$id))
 
 # Individuo i documenti con un solo DATE di tipo day
-# Sono quelli che hanno un valore NULL per la probabilità
+# Sono quelli che hanno un valore NULL 
 class.oneDATE <- names(to.class[sapply(sapply(to.class,  "[[", 3), function(x) length(x) == 0)])
-
-prova <- droplevels(data[which(data$id %in% class.oneDATE), ])
-str(prova)
-
 #=================================================#
-# DA definire la penalizzione dello score, in quanto la stima è fatta su un'unico DATE
+# DA definire la penalizzione dello score, in quanto la stima è fatta su un'unica espressione
+# di tipo DATE
 # (per ora tengo la frequenza pesata di base)
 score.oneDATE <- class.noREF[which(class.noREF$id %in% class.oneDATE), ]$Freq
 
@@ -182,18 +180,99 @@ score.oneDATE <- class.noREF[which(class.noREF$id %in% class.oneDATE), ]$Freq
 classificazione <- tag(classificazione, id= class.oneDATE, tag= "day", score = score.oneDATE)
 stato.classificazione()
 
-
 if(length(which(names(to.class) %in% class.oneDATE)) > 0)
 {
-  to.class <- to.class[-which(names(to.class) %in% class.oneDATE)                      ]
+  to.class <- to.class[-which(names(to.class) %in% class.oneDATE)]
+}
+# check length(to.class) + length(ties.type) + length(ties.DATE) + length(ties.ref)
+
+# Quelli che hanno uno 0 per la probabilità, sono sempre di tipo day, ma  hanno più di una data
+# (ma non abbastanza per raggiungere la probabilità desiderata nel calcolo degli intervalli)
+class.day <- names(to.class[sapply(sapply(to.class,  "[[", 3), function(x) x == 0)])
+#=================================================#
+# DA definire lo score in base al numero di espressioni
+score.day <- class.noREF[which(class.noREF$id %in% class.day), ]$Freq
+#=================================================#
+classificazione <- tag(classificazione, id= class.day, tag= "day", score = score.day)
+
+
+if(length(which(names(to.class) %in% class.day)) > 0)
+{
+  to.class <- to.class[-which(names(to.class) %in% class.day)]
 }
 
 # check length(to.class) + length(ties.type) + length(ties.DATE) + length(ties.ref)
 stato.classificazione()
 
-# Continuare da qui
-prova <- to.class[1:100]
-prova[[1]]$interval <- as.numeric(prova[[1]]$upper - prova[[1]]$lower) + 1
+# Calcolo ampiezze intervalli
+# prova <- to.class[1:100]
+# prova[[1]]$interval <- as.numeric(prova[[1]]$upper - prova[[1]]$lower) + 1
+#=============================================================#
+tagfrominterval <- function(x)
+{
+  if(x == 0) x = "day"
+  else if((x > 0)&(x <= 28)) x = "days"
+  else if((x > 28)&(x <= 31)) x = "month"
+  else if((x > 31)&(x <= 360)) x = "months"
+  else if((x > 360)&(x <= round(365*1.5))) x = "year"
+  else if(x > round(365*1.5)) x = "years"
+  # else if((x > 29)&(x <= 31)) x = "decade"
+  # else if((x > 29)&(x <= 31)) x = "decades"
+  # else if((x > 29)&(x <= 31)) x = "century"
+}
 
-# Estendere a tutti
-sapply(prova,  )
+add <- function(list) 
+{
+  list$interval <- as.numeric(list$upper - list$lower)
+  if(length(list$interval) == 1)
+  {
+    list$tag <- tagfrominterval(list$interval)
+  }
+  else
+  {
+    list$tag <- unique(sapply(list$interval, tagfrominterval))
+    # (uso di unique dalle considerazioni in fondo alla script)
+
+  }
+  
+  list
+}
+
+library(plyr)
+
+prova <-llply(to.class[1:100], function(x) add(x))
+prova
+
+startTimer()
+to.class <-llply(to.class, function(x) add(x))
+stopTimer()
+
+
+# Aggiungere a classificazione (bisognerà ripetere le righe id)
+l <- sapply(sapply(to.class,  "[[", 5), function(x) length(x))
+summary(l)
+
+
+#=============================================================#
+# Considerazioni (implementate poi nelle funzioni sopra)
+# Se l'intervallo è uno solo la classificazione è facile
+lengths <- sapply(sapply(to.class,  "[[", 4), function(x) length(x))
+summary(lengths)
+
+# Documento  con il massimo numero di intervalli (50)
+names(which.max(lengths))
+
+as.data.frame(data[which(data$id %in% names(which.max(lengths))), ])
+# check distribuzione
+setwd(paste(config[3], "DimSplitted", sep = ""))
+check <- names(which.max(lengths))
+bo <- read.delim(paste(check, "_txt", sep = ""), header = F)
+bo$V2 <- as.Date(bo$V2)
+hist(bo$V2, breaks = "day")
+# Un taglio più alto sarebbe stato più utile forse
+
+
+to.class[names(which.max(lengths))]
+# si potrebbero cmq usare gli intervalli "unici" 
+unique(to.class[names(which.max(lengths))][[1]]$interval)
+# avremmo ad esempio day/days/year/years ()
