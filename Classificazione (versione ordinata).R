@@ -162,7 +162,6 @@ stato.classificazione()
 # parto da levels(class.noREF$id) e recupero gli intervalli associati
 
 load("/home/sally/Documents/results90.RData")
-
 to.class <- results[which(names(results) %in% levels(class.noREF$id))]
 length(to.class)
 #check length(levels(class.noREF$id))
@@ -227,6 +226,7 @@ add <- function(list)
   if(length(list$interval) == 1)
   {
     list$tag <- tagfrominterval(list$interval)
+    list$prob <- list$prob*class.noREF[which(class.noREF$id %in% names(list)), ]$Freq
   }
   else
   {
@@ -240,64 +240,39 @@ add <- function(list)
 
 library(plyr)
 
-# prova <-llply(to.class[1:100], function(x) add(x))
+# prova <-llply(to.class[1:10], function(x) add(x))
 # prova
 
 startTimer()
 to.class <-llply(to.class, function(x) add(x))
 stopTimer()
 #=============================================================#
-# Aggiunta al dataframe classificazione
+# Aggiunta al dataframe classificazione - DA DEFINIRE LO SCORE 
+# Per ora è data da frequenzaPesata
 #=============================================================#
-
-tag.da.intervalli <- function(list.element, data)
+tag.da.intervalli <- function(lista, data)
 {
-  to.rep <- data[which(data$id == names(list.element)), ]  
-  data[which(data$id == names(list.element)), ]$class <- list.element[[1]]$tag[1]
-  if(length(list.element[[1]]$tag) > 1 )
-  {
-    to.rep <-to.rep[rep(seq_len(nrow(to.rep)), each=(length(list.element[[1]]$tag)-1) ),]  
-    to.rep$class <- list.element[[1]]$tag[2:length(list.element[[1]]$tag)]
+  data <- data[-which(data$id %in%names(lista)), ]
+  agg <- data.frame(id = character(0), class = numeric(0),  score = character(0))
+  for(i in 1:length(lista))
+  { 
+    list.element <- lista[i]
+    score <- class.noREF[which(class.noREF$id %in% names(list.element)), ]$Freq
+    agg <- rbind(agg, data.frame(id = rep(names(list.element), length(list.element[[1]]$tag)),
+                      class = list.element[[1]]$tag, 
+                      score = rep(score, length(list.element[[1]]$tag))))
   }
-  data <- data.frame(rbind(data, to.rep))
-  data
-}
-str(prova)
-prova <- tag.da.intervalli(list.element = cl, classificazione )
-
-# provare
-insertRow <- function(existingDF, newrow, r) {
-  existingDF <- rbind(existingDF,newrow)
-  existingDF <- existingDF[order(c(1:(nrow(existingDF)-1),r-0.5)),]
-  row.names(existingDF) <- 1:nrow(existingDF)
-  return(existingDF)  
+  rbind(data, agg)
 }
 
-data <- insertRow(data, to.rep, r = 4)
+# prova <- head(to.class)
+# c <- classificazione[c(1:7), ]
+# tag.da.intervalli1(prova, c)
+str(classificazione)
+stato.classificazione()
 
-head(prova[sort(prova$id), ])
+startTimer()
+class.prova <- tag.da.intervalli(to.class, data = classificazione)
+stopTimer()
 
-head(data[sort(data$id), ])
-#=============================================================#
-# Considerazioni (implementate poi nelle funzioni sopra)
-# Se l'intervallo è uno solo la classificazione è facile
-lengths <- sapply(sapply(to.class,  "[[", 4), function(x) length(x))
-summary(lengths)
-
-# Documento  con il massimo numero di intervalli (50)
-names(which.max(lengths))
-
-as.data.frame(data[which(data$id %in% names(which.max(lengths))), ])
-# check distribuzione
-setwd(paste(config[3], "DimSplitted", sep = ""))
-check <- names(which.max(lengths))
-bo <- read.delim(paste(check, "_txt", sep = ""), header = F)
-bo$V2 <- as.Date(bo$V2)
-hist(bo$V2, breaks = "day")
-# Un taglio più alto sarebbe stato più utile forse
-
-
-to.class[names(which.max(lengths))]
-# si potrebbero cmq usare gli intervalli "unici" 
-unique(to.class[names(which.max(lengths))][[1]]$interval)
-# avremmo ad esempio day/days/year/years ()
+stato.classificazione
