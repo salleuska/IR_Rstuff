@@ -214,10 +214,10 @@ tagfrominterval <- function(x)
   else if((x > 28)&(x <= 31)) x = "month"
   else if((x > 31)&(x <= 360)) x = "months"
   else if((x > 360)&(x <= round(365*1.5))) x = "year"
-  else if(x > round(365*1.5)) x = "years"
-  # else if((x > 29)&(x <= 31)) x = "decade"
-  # else if((x > 29)&(x <= 31)) x = "decades"
-  # else if((x > 29)&(x <= 31)) x = "century"
+  else if((x > round(365*1.5))&(x <= round(365*9.5))) x = "years"
+  else if(x > round(365*9.5)) x = "decade"
+  # else if() x = "decades"
+  # else if() x = "century"
 }
 
 add <- function(list) 
@@ -245,34 +245,77 @@ library(plyr)
 
 startTimer()
 to.class <-llply(to.class, function(x) add(x))
-stopTimer()
+stopTimer() #[1] "Tempo trascorso:  7 m 13 s 420728 milli"
+
+# int <- unlist(llply(to.class, function(x) length(x$tag)))
+# summary(int)
 #=============================================================#
 # Aggiunta al dataframe classificazione - DA DEFINIRE LO SCORE 
 # Per ora è data da frequenzaPesata
 #=============================================================#
-tag.da.intervalli <- function(lista, data)
-{
-  data <- data[-which(data$id %in%names(lista)), ]
-  agg <- data.frame(id = character(0), class = numeric(0),  score = character(0))
+#tag.da.intervalli <- function(lista, data)
+#{
+#  data <- data[-which(data$id %in%names(lista)), ]
+#  agg <- data.frame(id = character(0), class = numeric(0),  score = character(0))
+#  for(i in 1:length(lista))
+#  { 
+#    list.element <- lista[i]
+#    score <- class.noREF[which(class.noREF$id %in% names(list.element)), ]$Freq
+#    agg <- rbind(agg, data.frame(id = rep(names(list.element), length(list.element[[1]]$tag)),
+#                      class = list.element[[1]]$tag, 
+#                      score = rep(score, length(list.element[[1]]$tag))))
+#  }
+#  rbind(data, agg)
+#}
+#=====================================================#
+# funzione con matrice prealloacata ma con due cicli
+update <- function(lista)
+{  
+  N = length(to.class)*2
+  data <- data.frame(matrix(NA, nrow = N, ncol = 3), stringsAsFactors=FALSE)  
+  l <- 0
   for(i in 1:length(lista))
   { 
     list.element <- lista[i]
     score <- class.noREF[which(class.noREF$id %in% names(list.element)), ]$Freq
-    agg <- rbind(agg, data.frame(id = rep(names(list.element), length(list.element[[1]]$tag)),
-                      class = list.element[[1]]$tag, 
-                      score = rep(score, length(list.element[[1]]$tag))))
+    
+    for(j in 1:length(list.element[[1]]$tag))
+    {
+      data[(j + l), ] <- c(names(list.element),list.element[[1]]$tag[j], score) 
+    }
+    l <- l + length(list.element[[1]]$tag)
   }
-  rbind(data, agg)
+  data
 }
+#=====================================================#
 
-# prova <- head(to.class)
-# c <- classificazione[c(1:7), ]
-# tag.da.intervalli1(prova, c)
-str(classificazione)
-stato.classificazione()
+prova <- head(to.class)
+c <- classificazione[c(1:7), ]
+
+# startTimer()
+# tag.da.intervalli(prova, c)
+# stopTimer()
+
+# startTimer()
+# d <-update(prova)
+# stopTimer()
+#=====================================================#
+# startTimer()
+# class.prova <- tag.da.intervalli(to.class, data = classificazione)
+# stopTimer()
 
 startTimer()
-class.prova <- tag.da.intervalli(to.class, data = classificazione)
+data <- update(to.class)
 stopTimer()
 
-stato.classificazione
+str(data)
+
+colnames(data) <- colnames(classificazione)
+classificazione <- classificazione[-which(classificazione$id %in% data$id), ]
+data <- data[-which(is.na(data$id)), ]
+
+classificazione <- rbind(classificazione, data)
+
+str(classificazione)
+stato.classificazione()
+save(classificazione, "class.RData")
