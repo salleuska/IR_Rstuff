@@ -16,19 +16,6 @@ data <- ricarica.dataset("heidel_pulizia.def.txt")
 
 data <- data.table(data)
 setkey(data, id, type)
-# ---------------------------#
-# Creazione dataframe classificazione (id doc + classe + score)
-classificazione <- data.frame(cbind(levels(data$id), NA))
-colnames(classificazione) <- c("id", "class")
-# Tag
-classificazione$class <- factor(classificazione$class, levels= c("past", "present", "future", 
-                                                                 "day", "days", "month",
-                                                                 "months", "year", "years", 
-                                                                 "undef", "recurrence", "duration"))
-
-# Colonna rappresentante il punteggio associato alla classificazione
-# e.g. frequenza pesata
-classificazione$score <- rep(0, dim(classificazione)[1])
 #----------------------------------------------------------#
 data.names <- levels(data$id)
 str(data)
@@ -38,11 +25,15 @@ if(length(which((data$gran == "undefined")&(data$type =="DATE"))) > 0)
   data <- droplevels(data[- which((data$gran == "undefined")&(data$type =="DATE")), ])
 }
 # Documenti che avevano solo espressioni di tipo DATE undefined -> non classificabili
-
-classificazione <- tag(classificazione, id = setdiff(data.names, levels(data$id)),
-                       tag = "undef", score = rep(0, length(setdiff(data.names, levels(data$id)))))
-
-stato.classificazione()
+# Creazione dataframe classificazione
+classificazione <- tag(NULL, id = setdiff(data.names, levels(data$id)),
+                        tag = "undef", score = rep(0, length(setdiff(data.names, levels(data$id)))))
+colnames(classificazione) <- c("id", "class", "score")
+classificazione$class <- factor(classificazione$class, levels = c("undef", "duration", "recurrence",
+                                                                  "past","present", "future", 
+                                                                  "day", "days", "month", 
+                                                                  "months", "year", "years", 
+                                                                  "decade"))
 # pesi(esempio): DATE = 4, DURATION = 1,SET= 2,  TIME = 0
 # per i TIME non classifico
 # DURATION < SET
@@ -52,14 +43,17 @@ w <- c(4, 1, 2, 0)
 tab <- prop.table.weighted(table(data[, list(id, type)]), w)
 # Individuazione tipo di espressione con frequenza pesata massima
 max <- max.freq(tab)
-#===================================================#
-# Individuazione dei ties (DA GESTIRE ANCORA)
+
+# Individuazione dei ties
 ties.type <- ties(max)
+ties.type.matrix <- matrix.ties(ties.type, c("id", "type", "Freq")) 
+ties.type.matrix
 
 if(length(ties.type) > 0)  max <-max[-which(names(max) %in% names(ties.type))]
-#===================================================#
 
-max <- list.to.data.frame(max, colnames = c("id", "type"))
+max <- rbind(list.to.data.frame(max, colnames = c("id", "type")), ties.type.matrix)
+
+max[1:100, ]
 
 class.DATE <- droplevels(max[which(max$type == "DATE"), ])
 class.SET <- droplevels(max[which(max$type == "SET"), ])
@@ -67,15 +61,12 @@ class.DURATION <- droplevels(max[which(max$type == "DURATION"), ])
 # Se rimangono fuori dei documenti, sono quelli con espressioni solo di tipo TIME
 class.TIME <- droplevels(max[which((max$type != "DURATION")&(max$type != "SET")&(max$type != "DATE")), ])
 
-# check length(levels(data$id)) - length(ties.type)
-# check dim(class.SET)[1] + dim(class.DATE)[1] + dim(class.DURATION)[1] + dim(class.TIME)[1]
-
 classificazione <- tag(classificazione, names(class.TIME$id), "undef", rep(0, length(names(class.TIME$id))))
 # Frequenza pesata come score provvisorio
 classificazione <- tag(classificazione, names(class.DURATION$id), "duration", class.DURATION$Freq)
 classificazione <- tag(classificazione, names(class.SET$id), "recurrence", class.SET$Freq)
 
-stato.classificazione()
+stato(classificazione)
 
 # Gestione classficazione traminte DATE
 DATE <- droplevels(data[which(data$id %in% unique(class.DATE$id)), ])
@@ -101,45 +92,51 @@ tab.DATE <- prop.table.weighted(table(DATE[, list(id, gran)]), w.ref)
 # cbind(tab.DATE[1:10, ], class.DATE$Freq[1:10 ])
 # tab.DATE[1:10, ]*class.DATE$Freq[1:10]
 
-tab.DATE <- tab.DATE*class.DATE$Freq
+tab.DATE <- tab.DATE*as.numeric(class.DATE$Freq)
 
 # Individuo la categoria massima 
 max.DATE <- max.freq(tab.DATE)
 
-#===================================================#
-# Individuazione dei ties (DA GESTIRE ANCORA.. intanto vengono tolti)
+#
+# Individuazione dei ties 
 ties.DATE <- ties(max.DATE)
 
+ties.DATE.matrix <- matrix.ties(ties.DATE, c("id", "gran", "Freq"))
+# ties.DATE.matrix[1:10, ]
+
 if(length(ties.DATE) > 0)  max.DATE <-max.DATE[-which(names(max.DATE) %in% names(ties.DATE))]
-#===================================================#
+
 # Documenti da classicare tramite REF
 
-max.DATE <- list.to.data.frame(max.DATE, c("id" , "gran"))
+max.DATE <- rbind(list.to.data.frame(max.DATE, c("id" , "gran")), ties.DATE.matrix)
+# length(levels(max.DATE$id))
+
 # Documenti da classificare tramite REF
 class.REF <- droplevels(max.DATE[which(max.DATE$gran == "ref"), ])
 # Documenti da classificare tramite gli intervalli
 class.noREF <- droplevels(max.DATE[which(max.DATE$gran == "noref"), ])
 
-# check dim(class.REF)[1] + dim(class.noREF)[1]
+# check length(levels(class.REF$id)) + length(levels(class.noREF$id)) - length(ties.DATE)
 #---------------------------------#
 # Classificazione in base ai ref
 REF <- droplevels(data[which((data$id %in%levels(class.REF$id))&(data$gran == "ref")), ])
 
 tab.ref <- prop.table(table(REF[, list(id, value)]), margin = 1)
 
-#===================================================#
-# Aggiornamento dello score? 
-# tab.DATE <- tab.DATE*class.DATE$Freq
-#===================================================#
+# Aggiornamento dello score 
+tab.DATE <- tab.DATE*as.numeric(class.DATE$Freq)
 
 max.ref <- max.freq(tab.ref)
-#===================================================#
-# Individuazione dei ties (DA GESTIRE ANCORA.. intanto vengono tolti)
+#-----------------#
+# Individuazione dei ties 
 ties.ref <- ties(max.ref)
-# 272 + 8 (ce ne sono anche con 3)
+
+ties.ref.matrix<- matrix.ties(ties.ref, c("id", "ref", "Freq"))
+# str(ties.ref.matrix)
+
 if(length(ties.ref) > 0)  max.ref <-max.ref[-which(names(max.ref) %in% names(ties.ref))]
-#===================================================#
-max.ref<- list.to.data.frame(max.ref, c("id", "ref" ))
+
+max.ref<- rbind(list.to.data.frame(max.ref, c("id", "ref" )), ties.ref.matrix)
 
 class.PAST <- droplevels(max.ref[which(max.ref$ref == "PAST_REF"), ])
 class.PRESENT <- droplevels(max.ref[which(max.ref$ref == "PRESENT_REF"), ])
@@ -152,11 +149,7 @@ classificazione <- tag(classificazione, levels(class.PAST$id), "past", class.PAS
 classificazione <- tag(classificazione, levels(class.PRESENT$id), "present", class.PRESENT$Freq)
 classificazione <- tag(classificazione, levels(class.FUTURE$id), "future", class.FUTURE$Freq)
 
-stato.classificazione()
-
-# Check NA (Da classificare)
-# length(ties.type) + length(ties.DATE) + length(ties.ref) + dim(class.noREF)[1]
-
+stato(classificazione)
 #---------------------------------------------------------------#
 # Classificazione per intervalli
 # parto da levels(class.noREF$id) e recupero gli intervalli associati
@@ -177,7 +170,7 @@ score.oneDATE <- class.noREF[which(class.noREF$id %in% class.oneDATE), ]$Freq
 
 #=================================================#
 classificazione <- tag(classificazione, id= class.oneDATE, tag= "day", score = score.oneDATE)
-stato.classificazione()
+stato(classificazione)
 
 if(length(which(names(to.class) %in% class.oneDATE)) > 0)
 {
@@ -201,7 +194,7 @@ if(length(which(names(to.class) %in% class.day)) > 0)
 }
 
 # check length(to.class) + length(ties.type) + length(ties.DATE) + length(ties.ref)
-stato.classificazione()
+stato(classificazione)
 
 # Calcolo ampiezze intervalli
 # prova <- to.class[1:100]
@@ -220,13 +213,14 @@ tagfrominterval <- function(x)
   # else if() x = "century"
 }
 
+
 add <- function(list) 
 {
   list$interval <- as.numeric(list$upper - list$lower)
   if(length(list$interval) == 1)
   {
     list$tag <- tagfrominterval(list$interval)
-    list$prob <- list$prob*class.noREF[which(class.noREF$id %in% names(list)), ]$Freq
+    list$prob <- list$prob*as.numeric(class.noREF[which(class.noREF$id %in% names(list)), ]$Freq)
   }
   else
   {
@@ -251,71 +245,20 @@ stopTimer() #[1] "Tempo trascorso:  7 m 13 s 420728 milli"
 # summary(int)
 #=============================================================#
 # Aggiunta al dataframe classificazione - DA DEFINIRE LO SCORE 
-# Per ora è data da frequenzaPesata
+# Per ora è dato da frequenzaPesata
 #=============================================================#
-#tag.da.intervalli <- function(lista, data)
-#{
-#  data <- data[-which(data$id %in%names(lista)), ]
-#  agg <- data.frame(id = character(0), class = numeric(0),  score = character(0))
-#  for(i in 1:length(lista))
-#  { 
-#    list.element <- lista[i]
-#    score <- class.noREF[which(class.noREF$id %in% names(list.element)), ]$Freq
-#    agg <- rbind(agg, data.frame(id = rep(names(list.element), length(list.element[[1]]$tag)),
-#                      class = list.element[[1]]$tag, 
-#                      score = rep(score, length(list.element[[1]]$tag))))
-#  }
-#  rbind(data, agg)
-#}
-#=====================================================#
-# funzione con matrice prealloacata ma con due cicli
-update <- function(lista)
-{  
-  N = length(to.class)*2
-  data <- data.frame(matrix(NA, nrow = N, ncol = 3), stringsAsFactors=FALSE)  
-  l <- 0
-  for(i in 1:length(lista))
-  { 
-    list.element <- lista[i]
-    score <- class.noREF[which(class.noREF$id %in% names(list.element)), ]$Freq
-    
-    for(j in 1:length(list.element[[1]]$tag))
-    {
-      data[(j + l), ] <- c(names(list.element),list.element[[1]]$tag[j], score) 
-    }
-    l <- l + length(list.element[[1]]$tag)
-  }
-  data
-}
-#=====================================================#
-
-prova <- head(to.class)
-c <- classificazione[c(1:7), ]
-
+# prova <- head(to.class)
+# c <- classificazione[c(1:7), ]
 # startTimer()
-# tag.da.intervalli(prova, c)
+# d <-update.intervalli(prova, c)
 # stopTimer()
-
-# startTimer()
-# d <-update(prova)
-# stopTimer()
-#=====================================================#
-# startTimer()
-# class.prova <- tag.da.intervalli(to.class, data = classificazione)
-# stopTimer()
+#-------------------------------------------------------------------#
 
 startTimer()
-data <- update(to.class)
+classificazione <- update.intervalli(to.class, classificazione)
 stopTimer()
 
-str(data)
+stato(classificazione) # check conteggi da sistemare
 
-colnames(data) <- colnames(classificazione)
-classificazione <- classificazione[-which(classificazione$id %in% data$id), ]
-data <- data[-which(is.na(data$id)), ]
+save(classificazione,file =  "classificazione.RData")
 
-classificazione <- rbind(classificazione, data)
-
-str(classificazione)
-stato.classificazione()
-save(classificazione, "class.RData")

@@ -38,17 +38,63 @@ ties <- function(lista)
 
 #------------------------------------------------------#
 
-tag <- function(data, id, tag, score)
+tag <- function(matrice.class, id, tag, score)
 {
-  # Funzione che aggiorna i tag della classificazione
-  # id: vettore degli id dei documenti da classificare tramite il tag
+  tmp <- data.frame(matrix(NA, nrow = length(id), ncol = 3))
+  tmp[,1] <- id
+  tmp[,2] <- tag
+  tmp[,3] <- score
   
-  data[which(data$id %in% id), ]$class <- tag
-  data[which(data$id %in% id), ]$score <- score
-  
-  data  
+  colnames(tmp) <- c("id", "class", "score")
+  rbind(matrice.class, tmp)
 }
 
 #------------------------------------------------------#
-stato.classificazione <- function() sort(summary(classificazione$class, maxsum=15), decreasing=T)
+stato <- function(matrice.class)
+{
+  cat("Numero (indicativo) documenti classificati \t ", length(unique(matrice.class$id)), "\n")
+  cat("#--------------------------------------------------------------------#\n")
+  cat("Tag\n")
+  sort(summary(matrice.class$class, maxsum=15), decreasing=T)
+}
+#-------------------------------------------------------#
 
+matrix.ties <- function(lista, colnames)
+{ 
+  data <- data.frame(matrix(NA, nrow = length(lista), ncol = 3))
+  colnames(data) <- colnames
+  l <- 0
+  for(i in 1:length(lista))
+  { 
+    list.element <- lista[i]
+    score <- as.numeric(list.element[[1]][[2]])
+    
+    for(j in 1:length(list.element[[1]][[1]]))
+    {
+      data[(j + l), ] <- c(names(list.element),list.element[[1]][[1]][j], score) 
+    }
+    l <- l + length(list.element[[1]][[1]])
+  }
+  data
+}
+#---------------------------------------#
+update.intervalli <- function(lista, matrice.class)
+{  
+  N = length(lista)*2
+  tmp <- data.frame(matrix(NA, nrow = N, ncol = 3))
+  l <- 0
+  for(i in 1:length(lista))
+  { 
+    list.element <- lista[i]
+    score <- as.numeric(class.noREF[which(class.noREF$id %in% names(list.element)), ]$Freq)
+    
+    for(j in 1:length(list.element[[1]]$tag))
+    {
+      tmp[(j + l), ] <- c(names(list.element),list.element[[1]]$tag[j], score) 
+    }
+    l <- l + length(list.element[[1]]$tag)
+  }
+  colnames(tmp) <- c("id", "class", "score")
+  tmp <- tmp[-which(is.na(tmp$id)), ]
+  rbind(matrice.class, tmp)
+}
