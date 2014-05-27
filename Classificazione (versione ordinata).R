@@ -202,6 +202,8 @@ stato(classificazione)
 #=============================================================#
 tagfrominterval <- function(x)
 {
+  # Da decidere quanto si vuole differenziare (ad es. aggiungere anche decades etc)
+  # tuttavia poi ci mette di più
   if(x == 0) x = "day"
   else if((x > 0)&(x <= 28)) x = "days"
   else if((x > 28)&(x <= 31)) x = "month"
@@ -258,7 +260,7 @@ startTimer()
 classificazione <- update.intervalli(to.class, classificazione)
 stopTimer()
 
-stato(classificazione) # check conteggi da sistemare
+stato(classificazione) # check conteggi da sistemare (sballati perchè abbiamo più di un tag)
 
 save(classificazione,file =  "classificazione.RData")
 
