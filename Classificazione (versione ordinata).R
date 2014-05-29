@@ -13,16 +13,16 @@ library(data.table)
 # Lettura dataset pulito
 setwd(config[2])
 data <- ricarica.dataset("heidel_pulizia.def.txt")
-
+str(data)
 data <- data.table(data)
 setkey(data, id, type)
 #----------------------------------------------------------#
 data.names <- levels(data$id)
-str(data)
+
 # Elimino le espressioni con granularità undefined di tipo DATE
 if(length(which((data$gran == "undefined")&(data$type =="DATE"))) > 0)
 {
-  data <- droplevels(data[- which((data$gran == "undefined")&(data$type =="DATE")), ])
+  data <- droplevels(data[-which((data$gran == "undefined")&(data$type =="DATE")), ])
 }
 # Documenti che avevano solo espressioni di tipo DATE undefined -> non classificabili
 # Creazione dataframe classificazione
@@ -33,7 +33,17 @@ classificazione$class <- factor(classificazione$class, levels = c("undef", "dura
                                                                   "past","present", "future", 
                                                                   "day", "days", "month", 
                                                                   "months", "year", "years", 
-                                                                  "decade"))
+                                                                  "decade", "decades", "century",
+                                                                  "centuries"))
+
+data.names <- levels(data$id)
+if(length(which((data$gran == "undefined")&(data$type =="TIME"))) > 0)
+{
+  data <- droplevels(data[-which((data$gran == "undefined")&(data$type =="TIME")), ])
+}
+classificazione <- tag(classificazione, setdiff(data.names, levels(data$id)), "undef",
+                       rep(0, length(setdiff(data.names, levels(data$id)))))
+
 # pesi(esempio): DATE = 4, DURATION = 1,SET= 2,  TIME = 0
 # per i TIME non classifico
 # DURATION < SET
@@ -43,6 +53,7 @@ w <- c(4, 1, 2, 0)
 tab <- prop.table.weighted(table(data[, list(id, type)]), w)
 # Individuazione tipo di espressione con frequenza pesata massima
 max <- max.freq(tab)
+# str(max)
 
 # Individuazione dei ties
 ties.type <- ties(max)
@@ -51,27 +62,31 @@ ties.type.matrix
 
 if(length(ties.type) > 0)  max <-max[-which(names(max) %in% names(ties.type))]
 
+
 max <- rbind(list.to.data.frame(max, colnames = c("id", "type")), ties.type.matrix)
 
-max[1:100, ]
+str(max)
 
 class.DATE <- droplevels(max[which(max$type == "DATE"), ])
 class.SET <- droplevels(max[which(max$type == "SET"), ])
 class.DURATION <- droplevels(max[which(max$type == "DURATION"), ])
 # Se rimangono fuori dei documenti, sono quelli con espressioni solo di tipo TIME
-class.TIME <- droplevels(max[which((max$type != "DURATION")&(max$type != "SET")&(max$type != "DATE")), ])
-
-classificazione <- tag(classificazione, names(class.TIME$id), "undef", rep(0, length(names(class.TIME$id))))
-# Frequenza pesata come score provvisorio
-classificazione <- tag(classificazione, names(class.DURATION$id), "duration", class.DURATION$Freq)
-classificazione <- tag(classificazione, names(class.SET$id), "recurrence", class.SET$Freq)
 
 stato(classificazione)
+# Frequenza pesata come score provvisorio
+classificazione <- tag(classificazione, class.DURATION$id, "duration", class.DURATION$Freq)
+stato(classificazione)
+classificazione <- tag(classificazione, class.SET$id, "recurrence", class.SET$Freq)
+stato(classificazione)
+
+
+length(setdiff(levels(DATE$id), unique(classificazione$id)))+ length(unique(classificazione$id))
+
 
 # Gestione classficazione traminte DATE
 DATE <- droplevels(data[which(data$id %in% unique(class.DATE$id)), ])
 DATE <- droplevels(DATE[which(DATE$type == "DATE"), ])
-str(DATE) #110072
+str(DATE) #110279
 # Rinomino i livelli per suddivisioni in "ref" e "noref"
 levels(DATE$gran)[which(levels(DATE$gran) != "ref")] <- rep("noref")
 # PESI
@@ -106,7 +121,7 @@ ties.DATE.matrix <- matrix.ties(ties.DATE, c("id", "gran", "Freq"))
 
 if(length(ties.DATE) > 0)  max.DATE <-max.DATE[-which(names(max.DATE) %in% names(ties.DATE))]
 
-# Documenti da classicare tramite REF
+# Documenti da classificare tramite REF
 
 max.DATE <- rbind(list.to.data.frame(max.DATE, c("id" , "gran")), ties.DATE.matrix)
 # length(levels(max.DATE$id))
@@ -155,9 +170,11 @@ stato(classificazione)
 # parto da levels(class.noREF$id) e recupero gli intervalli associati
 
 load("/home/sally/Documents/results90.RData")
+length(results)
 to.class <- results[which(names(results) %in% levels(class.noREF$id))]
 length(to.class)
-#check length(levels(class.noREF$id))
+#check 
+length(levels(class.noREF$id))
 
 # Individuo i documenti con un solo DATE di tipo day
 # Sono quelli che hanno un valore NULL 
@@ -210,9 +227,10 @@ tagfrominterval <- function(x)
   else if((x > 31)&(x <= 360)) x = "months"
   else if((x > 360)&(x <= round(365*1.5))) x = "year"
   else if((x > round(365*1.5))&(x <= round(365*9.5))) x = "years"
-  else if(x > round(365*9.5)) x = "decade"
-  # else if() x = "decades"
-  # else if() x = "century"
+  else if(x > round(365*9.5)&(x <= round(365*15))) x = "decade"
+  else if(x > round(365*9.5)&(x <= round(365*95))) x = "decades"
+  else if(x > round(365*95)&(x <= round(365*150))) x = "century"
+  else if(x > round(365*150)) x = "centuries"
 }
 
 
@@ -239,12 +257,12 @@ library(plyr)
 # prova <-llply(to.class[1:10], function(x) add(x))
 # prova
 
+# length(setdiff(names(to.class), unique(classificazione$id))) + length(unique(classificazione$id))
+
 startTimer()
 to.class <-llply(to.class, function(x) add(x))
 stopTimer() #[1] "Tempo trascorso:  7 m 13 s 420728 milli"
 
-# int <- unlist(llply(to.class, function(x) length(x$tag)))
-# summary(int)
 #=============================================================#
 # Aggiunta al dataframe classificazione - DA DEFINIRE LO SCORE 
 # Per ora è dato da frequenzaPesata
@@ -260,7 +278,9 @@ startTimer()
 classificazione <- update.intervalli(to.class, classificazione)
 stopTimer()
 
+length(to.class)
+
 stato(classificazione) # check conteggi da sistemare (sballati perchè abbiamo più di un tag)
 
-save(classificazione,file =  "classificazione.RData")
+save(classificazione,file =  "classCheck.RData")
 

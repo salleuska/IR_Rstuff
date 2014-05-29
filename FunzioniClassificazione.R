@@ -14,7 +14,7 @@ prop.table.weighted <- function(table, w)
 list.to.data.frame <- function(lista, colnames = NULL)
 {
   # trasforma una lista di liste in un dataframe
-  lista.data <- data.frame(cbind(names(lista), as.vector(sapply(lista, "[[", 1))))
+  lista.data <- data.frame(cbind(as.vector(names(lista)), as.vector(sapply(lista, "[[", 1))))
   colnames(lista.data)<-colnames
   lista.data$Freq <- as.vector(sapply(lista, "[[", 2))
   
@@ -55,7 +55,7 @@ stato <- function(matrice.class)
   cat("Numero (indicativo) documenti classificati \t ", length(unique(matrice.class$id)), "\n")
   cat("#--------------------------------------------------------------------#\n")
   cat("Tag\n")
-  sort(summary(matrice.class$class, maxsum=15), decreasing=T)
+  sort(summary(matrice.class$class, maxsum=20), decreasing=T)
 }
 #-------------------------------------------------------#
 
